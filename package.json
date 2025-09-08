@@ -21,7 +21,8 @@
     "security:scan": "node scripts/security-scan.js",
     "security:rotate": "node scripts/rotate-secrets.js",
     "backup": "node scripts/backup.js",
-    "security:test": "jest tests/security.test.ts"
+    "security:test": "jest tests/security.test.ts",
+    "security:check": "node scripts/security-check.js"
   },
   "keywords": [],
   "author": "",
