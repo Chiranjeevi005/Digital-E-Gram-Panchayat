@@ -23,7 +23,7 @@ jobs:
         cache: 'npm'
 
     - name: Install dependencies
-      run: npm ci
+      run: npm ci --legacy-peer-deps
 
     - name: Run npm audit
       run: npm audit --audit-level=high
@@ -43,7 +43,7 @@ jobs:
         audit-on: push
 
     - name: Upload Semgrep results
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       if: always()
       with:
         sarif_file: semgrep.sarif
@@ -62,7 +62,7 @@ jobs:
         cache: 'npm'
 
     - name: Install dependencies
-      run: npm ci
+      run: npm ci --legacy-peer-deps
 
     - name: Run dependency check
       run: npx depcheck
@@ -91,7 +91,7 @@ jobs:
         cache: 'npm'
 
     - name: Install dependencies
-      run: npm ci
+      run: npm ci --legacy-peer-deps
 
     - name: Run unit tests with coverage
       run: npm run test
@@ -141,7 +141,7 @@ jobs:
         cache: 'npm'
 
     - name: Install dependencies
-      run: npm ci
+      run: npm ci --legacy-peer-deps
 
     - name: Run authentication integration tests
       run: npm run test -- --testNamePattern="auth|google-auth"
