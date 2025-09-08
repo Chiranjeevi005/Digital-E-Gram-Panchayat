@@ -1,0 +1,176 @@
+name: Security CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 2 * * 1' # Weekly on Mondays at 2 AM
+
+jobs:
+  security-audit:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run npm audit
+      run: npm audit --audit-level=high
+
+    - name: Run Snyk to check for vulnerabilities
+      uses: snyk/actions/node@master
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      continue-on-error: true # Allow the workflow to continue even if Snyk finds issues
+      with:
+        args: --severity-threshold=high
+
+    - name: Run Semgrep security scan
+      uses: returntocorp/semgrep-action@v1
+      with:
+        config: p/ci
+        audit-on: push
+
+    - name: Upload Semgrep results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: semgrep.sarif
+
+  dependency-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run dependency check
+      run: npx depcheck
+
+    - name: Check for outdated dependencies
+      run: npm outdated || echo "Some dependencies are outdated"
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    
+    services:
+      mongodb:
+        image: mongo:5.0
+        ports:
+          - 27017:27017
+        options: --health-cmd mongo --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run unit tests with coverage
+      run: npm run test
+      env:
+        MONGODB_URI: mongodb://localhost:27017/test
+        NEXTAUTH_SECRET: test-secret-key-for-ci
+        NEXTAUTH_URL: http://localhost:3000
+        GOOGLE_CLIENT_ID: test-google-client-id
+        GOOGLE_CLIENT_SECRET: test-google-client-secret
+
+    - name: Run security-focused unit tests
+      run: npm run test -- --testNamePattern="security|auth|permission"
+      env:
+        MONGODB_URI: mongodb://localhost:27017/test
+        NEXTAUTH_SECRET: test-secret-key-for-ci
+        NEXTAUTH_URL: http://localhost:3000
+        GOOGLE_CLIENT_ID: test-google-client-id
+        GOOGLE_CLIENT_SECRET: test-google-client-secret
+
+    - name: Run authentication route tests
+      run: npm run test -- --testNamePattern="Authentication|Google|RBAC"
+      env:
+        MONGODB_URI: mongodb://localhost:27017/test
+        NEXTAUTH_SECRET: test-secret-key-for-ci
+        NEXTAUTH_URL: http://localhost:3000
+        GOOGLE_CLIENT_ID: test-google-client-id
+        GOOGLE_CLIENT_SECRET: test-google-client-secret
+
+  auth-integration-tests:
+    runs-on: ubuntu-latest
+    
+    services:
+      mongodb:
+        image: mongo:5.0
+        ports:
+          - 27017:27017
+        options: --health-cmd mongo --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run authentication integration tests
+      run: npm run test -- --testNamePattern="auth|google-auth"
+      env:
+        MONGODB_URI: mongodb://localhost:27017/test
+        NEXTAUTH_SECRET: test-secret-key-for-ci
+        NEXTAUTH_URL: http://localhost:3000
+        GOOGLE_CLIENT_ID: test-google-client-id
+        GOOGLE_CLIENT_SECRET: test-google-client-secret
+
+  zap-scan:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Start application for scanning
+      run: |
+        echo "Starting application for OWASP ZAP scan..."
+        # This would require setting up the application to run in CI
+        # For now, we'll skip the actual scan but show how it would work
+        echo "In a real implementation, you would start your application here"
+
+    - name: Run OWASP ZAP Baseline Scan
+      uses: zaproxy/action-baseline@v0.7.0
+      with:
+        target: https://your-staging-url.vercel.app
+        fail_action: false # Set to true to fail the action on findings
+        cmd_options: -a
+      continue-on-error: true

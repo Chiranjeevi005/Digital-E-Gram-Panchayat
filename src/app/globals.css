@@ -1,0 +1,182 @@
+@import 'tailwindcss';
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --foreground-rgb: 17, 24, 39; /* gray-900 */
+  --background-start-rgb: 249, 250, 251; /* gray-50 */
+  --background-end-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/*
+  Use the `@theme` directive to customize your project's theme.
+  https://tailwindcss.com/docs/theme
+*/
+@theme {
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8; /* Primary Blue */
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+  
+  --color-accent-50: #f0fdf4;
+  --color-accent-100: #dcfce7;
+  --color-accent-200: #bbf7d0;
+  --color-accent-300: #86efac;
+  --color-accent-400: #4ade80;
+  --color-accent-500: #22c55e;
+  --color-accent-600: #16a34a;
+  --color-accent-700: #15803d;
+  --color-accent-800: #166534;
+  --color-accent-900: #14532d;
+  
+  --color-neutral-50: #f9fafb;
+  --color-neutral-100: #f3f4f6; /* Light Gray Background */
+  --color-neutral-200: #e5e7eb;
+  --color-neutral-300: #d1d5db;
+  --color-neutral-400: #9ca3af;
+  --color-neutral-500: #6b7280;
+  --color-neutral-600: #4b5563;
+  --color-neutral-700: #374151;
+  --color-neutral-800: #1f2937;
+  --color-neutral-900: #111827; /* Dark Gray Text */
+  
+  --font-family-sans: 'Inter', sans-serif;
+  --font-family-heading: 'Poppins', sans-serif;
+  
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+  
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  
+  /* Responsive breakpoints */
+  --breakpoint-xs: 0;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/*
+  Use the `@utility` directive to add custom utilities.
+  https://tailwindcss.com/docs/utility-first#adding-custom-utilities
+*/
+@utility card {
+  @apply bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg;
+}
+
+@utility btn-primary {
+  @apply bg-primary-700 text-white font-medium rounded-lg px-4 py-2 hover:bg-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all duration-300;
+}
+
+@utility btn-secondary {
+  @apply bg-white text-gray-700 font-medium rounded-lg px-4 py-2 border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all duration-300;
+}
+
+@utility btn-accent {
+  @apply bg-accent-600 text-white font-medium rounded-lg px-4 py-2 hover:bg-accent-700 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:ring-offset-2 transition-all duration-300;
+}
+
+@utility input-field {
+  @apply block w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500;
+}
+
+@utility badge {
+  @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors duration-300;
+}
+
+@utility badge-pending {
+  @apply badge bg-blue-100 text-blue-800;
+}
+
+@utility badge-in-progress {
+  @apply badge bg-yellow-100 text-yellow-800;
+}
+
+@utility badge-approved {
+  @apply badge bg-green-100 text-green-800;
+}
+
+@utility badge-rejected {
+  @apply badge bg-red-100 text-red-800;
+}
+
+@utility section-title {
+  @apply text-2xl font-sans font-bold text-gray-900 mb-4;
+}
+
+@utility card-title {
+  @apply text-lg font-sans font-semibold text-gray-900;
+}
+
+@utility text-primary {
+  @apply text-primary-700;
+}
+
+@utility text-accent {
+  @apply text-accent-600;
+}
+
+@utility bg-primary-light {
+  @apply bg-primary-50;
+}
+
+@utility bg-accent-light {
+  @apply bg-accent-50;
+}
+
+/* Gradient utilities */
+@utility gradient-blue {
+  @apply bg-gradient-to-r from-blue-500 to-indigo-600;
+}
+
+@utility gradient-green {
+  @apply bg-gradient-to-r from-green-500 to-emerald-600;
+}
+
+@utility gradient-yellow {
+  @apply bg-gradient-to-r from-yellow-500 to-orange-500;
+}
+
+@utility gradient-red {
+  @apply bg-gradient-to-r from-red-500 to-rose-600;
+}
+
+@utility gradient-purple {
+  @apply bg-gradient-to-r from-purple-500 to-indigo-600;
+}
+
+/* Enhanced theme utilities to match the banner image */
+@utility banner-gradient {
+  @apply bg-gradient-to-r from-blue-600 to-indigo-700;
+}
+
+@utility banner-accent {
+  @apply bg-gradient-to-r from-green-500 to-emerald-600;
+}

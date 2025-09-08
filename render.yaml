@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: digital-e-panchayat
+    env: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXTAUTH_URL
+        value: https://your-render-app.onrender.com
+      - key: NEXTAUTH_SECRET
+        value: your_production_nextauth_secret_here
+      - key: MONGODB_URI
+        value: your_production_mongodb_uri_here
+      - key: GOOGLE_CLIENT_ID
+        value: your_production_google_client_id_here
+      - key: GOOGLE_CLIENT_SECRET
+        value: your_production_google_client_secret_here
+      - key: CLOUDINARY_CLOUD_NAME
+        value: your_production_cloudinary_cloud_name_here
+      - key: CLOUDINARY_API_KEY
+        value: your_production_cloudinary_api_key_here
+      - key: CLOUDINARY_API_SECRET
+        value: your_production_cloudinary_api_secret_here
