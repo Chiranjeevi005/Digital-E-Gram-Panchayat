@@ -11,7 +11,7 @@ services:
       - key: NEXTAUTH_URL
         value: https://digital-e-panchayat-4ut7amakj-chiranjeevi005s-projects.vercel.app
       - key: NEXTAUTH_SECRET
-        value: 9bdf5c1e07fd85d18471407b74fd62222ed6f479462c3aab05d9f1ac82da320b
+        value: 53ecb8b70bd8eb44de4ee0b8e2dc56d4a33e3abd662401cc8094663a2a6a8bba
       - key: MONGODB_URI
         value: mongodb+srv://chiru:chiru@cluster0.yylyjss.mongodb.net/
       - key: GOOGLE_CLIENT_ID
