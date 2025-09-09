@@ -4,17 +4,25 @@ import { useState, useEffect } from 'react'
 
 export default function DebugHealth() {
   const [healthData, setHealthData] = useState<any>(null)
+  const [googleConfigData, setGoogleConfigData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [googleTestResult, setGoogleTestResult] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchHealthData = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await fetch('/api/health-check')
-        const data = await response.json()
-        setHealthData(data)
+        
+        // Fetch health data
+        const healthResponse = await fetch('/api/health-check')
+        const healthData = await healthResponse.json()
+        setHealthData(healthData)
+        
+        // Fetch Google config data
+        const googleConfigResponse = await fetch('/api/test-google-config')
+        const googleConfigData = await googleConfigResponse.json()
+        setGoogleConfigData(googleConfigData)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error')
       } finally {
@@ -22,7 +30,7 @@ export default function DebugHealth() {
       }
     }
 
-    fetchHealthData()
+    fetchData()
   }, [])
 
   const testGoogleAuth = async () => {
@@ -112,6 +120,38 @@ export default function DebugHealth() {
                 </div>
 
                 <div className="bg-gray-50 p-4 rounded-lg">
+                  <h2 className="text-lg font-medium text-gray-900 mb-2">Google OAuth Configuration</h2>
+                  {googleConfigData?.success ? (
+                    <div className="space-y-2">
+                      <p className="text-sm text-green-600">✅ Configuration check passed</p>
+                      <p className="text-sm text-gray-600">
+                        Expected Redirect URI: <span className="font-mono break-all">{googleConfigData?.configuration?.expectedRedirectUri}</span>
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Client ID: {googleConfigData?.configuration?.googleClientId}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <p className="text-sm text-red-600">❌ Configuration check failed</p>
+                      {googleConfigData?.error && (
+                        <p className="text-sm text-gray-600">{googleConfigData.error}</p>
+                      )}
+                      {googleConfigData?.missing && (
+                        <div>
+                          <p className="text-sm text-gray-600">Missing variables:</p>
+                          <ul className="list-disc list-inside text-sm text-gray-600">
+                            {googleConfigData.missing.map((item: string) => (
+                              <li key={item}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg">
                   <h2 className="text-lg font-medium text-gray-900 mb-2">Google OAuth Test</h2>
                   <button
                     onClick={testGoogleAuth}
@@ -156,10 +196,11 @@ export default function DebugHealth() {
               <h3 className="text-md font-medium text-gray-900 mb-2">If you're still experiencing issues:</h3>
               <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600">
                 <li>Verify that your Google OAuth client is properly configured in the Google Cloud Console</li>
-                <li>Ensure the redirect URI exactly matches: <span className="font-mono break-all">{healthData?.redirectUri}</span></li>
+                <li>Ensure the redirect URI exactly matches: <span className="font-mono break-all">{googleConfigData?.configuration?.expectedRedirectUri}</span></li>
                 <li>Check that your OAuth client is not restricted to certain domains</li>
                 <li>Make sure the Google+ API is enabled for your project</li>
                 <li>Verify that your GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are correct</li>
+                <li>Check that your OAuth client is not in "Testing" mode if you're not a test user</li>
               </ol>
             </div>
           </div>
