@@ -6,6 +6,7 @@ export default function DebugHealth() {
   const [healthData, setHealthData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [googleTestResult, setGoogleTestResult] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchHealthData = async () => {
@@ -23,6 +24,29 @@ export default function DebugHealth() {
 
     fetchHealthData()
   }, [])
+
+  const testGoogleAuth = async () => {
+    setGoogleTestResult('Testing Google OAuth configuration...')
+    try {
+      // This is a client-side test to check if Google OAuth is properly configured
+      const redirectUri = `${healthData?.envCheck?.NEXTAUTH_URL}/api/auth/callback/google`
+      const clientId = healthData?.envCheck?.GOOGLE_CLIENT_ID
+      
+      if (!clientId || clientId === 'NOT SET') {
+        setGoogleTestResult('❌ Google Client ID is not configured')
+        return
+      }
+      
+      if (!healthData?.envCheck?.NEXTAUTH_URL || healthData.envCheck.NEXTAUTH_URL === 'NOT SET') {
+        setGoogleTestResult('❌ NEXTAUTH_URL is not configured')
+        return
+      }
+      
+      setGoogleTestResult(`✅ Configuration looks good. Redirect URI: ${redirectUri}`)
+    } catch (err) {
+      setGoogleTestResult(`❌ Error: ${err instanceof Error ? err.message : 'Unknown error'}`)
+    }
+  }
 
   if (loading) {
     return (
@@ -88,6 +112,21 @@ export default function DebugHealth() {
                 </div>
 
                 <div className="bg-gray-50 p-4 rounded-lg">
+                  <h2 className="text-lg font-medium text-gray-900 mb-2">Google OAuth Test</h2>
+                  <button
+                    onClick={testGoogleAuth}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                  >
+                    Test Google OAuth Configuration
+                  </button>
+                  {googleTestResult && (
+                    <p className="mt-2 text-sm text-gray-600">
+                      {googleTestResult}
+                    </p>
+                  )}
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg">
                   <h2 className="text-lg font-medium text-gray-900 mb-2">Timestamp</h2>
                   <p className="text-sm text-gray-600">
                     {healthData?.timestamp}
@@ -103,6 +142,25 @@ export default function DebugHealth() {
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Troubleshooting Guide */}
+        <div className="mt-8 bg-white shadow overflow-hidden sm:rounded-lg">
+          <div className="px-4 py-5 sm:px-6 bg-yellow-50">
+            <h2 className="text-lg font-medium text-yellow-800">Troubleshooting Guide</h2>
+          </div>
+          <div className="border-t border-gray-200">
+            <div className="px-4 py-5 sm:p-6">
+              <h3 className="text-md font-medium text-gray-900 mb-2">If you're still experiencing issues:</h3>
+              <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600">
+                <li>Verify that your Google OAuth client is properly configured in the Google Cloud Console</li>
+                <li>Ensure the redirect URI exactly matches: <span className="font-mono break-all">{healthData?.redirectUri}</span></li>
+                <li>Check that your OAuth client is not restricted to certain domains</li>
+                <li>Make sure the Google+ API is enabled for your project</li>
+                <li>Verify that your GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are correct</li>
+              </ol>
             </div>
           </div>
         </div>
