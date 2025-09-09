@@ -29,7 +29,7 @@ jobs:
       run: npm audit --audit-level=high
 
     - name: Run Snyk to check for vulnerabilities
-      uses: snyk/actions/node@master
+      uses: snyk/actions/node@0.4.0 # Use specific version instead of master
       env:
         SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       continue-on-error: true # Allow the workflow to continue even if Snyk finds issues
@@ -41,6 +41,7 @@ jobs:
       with:
         config: p/ci
         audit-on: push
+        output-format: sarif # Ensure SARIF output is generated
 
     - name: Upload Semgrep results
       uses: github/codeql-action/upload-sarif@v3

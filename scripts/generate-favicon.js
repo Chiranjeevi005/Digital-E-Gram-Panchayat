@@ -26,9 +26,9 @@ async function generateFavicon() {
       )
     );
 
-    // Create ICO file
-    const toIco = require('to-ico');
-    const icoBuffer = await toIco(buffers);
+    // Create ICO file using sharp-ico instead of to-ico
+    const sharpIco = require('sharp-ico');
+    const icoBuffer = await sharpIco.encode(buffers);
     
     // Write to public directory
     const faviconPath = path.join(__dirname, '../public/favicon.ico');

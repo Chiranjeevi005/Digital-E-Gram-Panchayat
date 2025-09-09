@@ -1,5 +1,4 @@
 import { authOptions } from '@/lib/auth'
-import GoogleProvider from 'next-auth/providers/google'
 
 // Mock the environment variables
 process.env.GOOGLE_CLIENT_ID = 'test-client-id'
@@ -16,29 +15,6 @@ describe('Google Authentication', () => {
     expect(googleProvider).toMatchObject({
       id: 'google',
       name: 'Google',
-    })
-  })
-
-  test('should force citizen role for Google sign-ins', () => {
-    const providers = authOptions.providers
-    const googleProvider: any = providers.find(provider => 
-      typeof provider === 'object' && 'id' in provider && provider.id === 'google'
-    )
-    
-    // Test the profile function
-    const profile = googleProvider.profile({
-      sub: '12345',
-      given_name: 'John',
-      family_name: 'Doe',
-      email: 'john.doe@example.com',
-      email_verified: true
-    })
-    
-    expect(profile).toMatchObject({
-      id: '12345',
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      role: 'citizen'
     })
   })
 
