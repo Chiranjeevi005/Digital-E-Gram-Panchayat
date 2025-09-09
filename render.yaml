@@ -9,18 +9,18 @@ services:
       - key: NODE_ENV
         value: production
       - key: NEXTAUTH_URL
-        value: https://your-render-app.onrender.com
+        value: https://digital-e-panchayat-4ut7amakj-chiranjeevi005s-projects.vercel.app
       - key: NEXTAUTH_SECRET
-        value: your_production_nextauth_secret_here
+        value: 9bdf5c1e07fd85d18471407b74fd62222ed6f479462c3aab05d9f1ac82da320b
       - key: MONGODB_URI
-        value: your_production_mongodb_uri_here
+        value: mongodb+srv://chiru:chiru@cluster0.yylyjss.mongodb.net/
       - key: GOOGLE_CLIENT_ID
-        value: your_production_google_client_id_here
+        value: 16993907407-g7ne2nbu5nqa7rvlh8rapm0p6cg8dmc8.apps.googleusercontent.com
       - key: GOOGLE_CLIENT_SECRET
-        value: your_production_google_client_secret_here
+        value: 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
       - key: CLOUDINARY_CLOUD_NAME
-        value: your_production_cloudinary_cloud_name_here
+        value: ds2qnwvrk
       - key: CLOUDINARY_API_KEY
-        value: your_production_cloudinary_api_key_here
+        value: 193712724145898
       - key: CLOUDINARY_API_SECRET
-        value: your_production_cloudinary_api_secret_here
+        value: fu6qWProMd9ncNOq9g43m1WCGFA
