@@ -150,9 +150,15 @@ UserSchema.pre('save', async function (next) {
     const password = this.password as string;
     this.password = await bcrypt.hash(password, saltRounds)
     next()
-  } catch (error) {
+  } catch (error: unknown) {
     logger.error({ error }, 'Error hashing password:')
-    next(error as Error)
+    // Type-safe error handling: ensure we pass an Error object to next()
+    if (error instanceof Error) {
+      next(error);
+    } else {
+      // If it's not an Error object, create a new Error with the string representation
+      next(new Error(`Unknown error in password hashing: ${error}`));
+    }
   }
 })
 

@@ -53,6 +53,7 @@ async function dbConnect(): Promise<Connection> {
       return mongoose.connection
     }).catch((error) => {
       console.error('MongoDB connection error:', error)
+      console.error('Connection string (without credentials):', MONGODB_URI?.replace(/\/\/.*@/, '//****:****@'))
       throw new Error('Failed to connect to MongoDB. Please check your connection string and network connectivity.')
     })
   }

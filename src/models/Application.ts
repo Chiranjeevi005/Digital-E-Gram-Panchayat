@@ -83,29 +83,40 @@ ApplicationSchema.index({ status: 1 })
 
 // Add a pre-save hook to validate references
 ApplicationSchema.pre('save', async function(next) {
-  // Validate that the applicant user exists
-  if (this.applicant) {
-    const User = mongoose.models.User;
-    if (User) {
-      const user = await User.findById(this.applicant);
-      if (!user) {
-        return next(new Error('Applicant user does not exist'));
+  try {
+    // Validate that the applicant user exists
+    if (this.applicant) {
+      const User = mongoose.models.User;
+      if (User) {
+        const user = await User.findById(this.applicant);
+        if (!user) {
+          return next(new Error(`Applicant user with ID ${this.applicant} does not exist`));
+        }
       }
     }
-  }
-  
-  // Validate that the service exists
-  if (this.service) {
-    const Service = mongoose.models.Service;
-    if (Service) {
-      const service = await Service.findById(this.service);
-      if (!service) {
-        return next(new Error('Service does not exist'));
+    
+    // Validate that the service exists
+    if (this.service) {
+      const Service = mongoose.models.Service;
+      if (Service) {
+        const service = await Service.findById(this.service);
+        if (!service) {
+          return next(new Error(`Service with ID ${this.service} does not exist`));
+        }
       }
     }
+    
+    next();
+  } catch (error: unknown) {
+    console.error('Error in Application pre-save hook:', error);
+    // Type-safe error handling: ensure we pass an Error object to next()
+    if (error instanceof Error) {
+      next(error);
+    } else {
+      // If it's not an Error object, create a new Error with the string representation
+      next(new Error(`Unknown error in pre-save hook: ${error}`));
+    }
   }
-  
-  next();
 });
 
 export default mongoose.models.Application || mongoose.model<IApplication>('Application', ApplicationSchema)

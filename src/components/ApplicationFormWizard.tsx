@@ -757,6 +757,9 @@ export default function ApplicationFormWizard({
           }),
         })
         
+        console.log('API Response Status:', response.status);
+        console.log('API Response Status Text:', response.statusText);
+        
         if (response.ok) {
           const application = await response.json()
           // If onSuccessfulSubmit is provided, call it with the application ID
@@ -797,7 +800,11 @@ export default function ApplicationFormWizard({
         const { showNotification } = await import('@/lib/documentGenerator')
         showNotification(`Submission Error: ${errorMessage}`)
         
-        console.error('Submission error:', error)
+        console.error('Submission error:', {
+          name: error instanceof Error ? error.name : 'Unknown error',
+          message: errorMessage,
+          stack: error instanceof Error ? error.stack : undefined
+        })
       }
     }
   }

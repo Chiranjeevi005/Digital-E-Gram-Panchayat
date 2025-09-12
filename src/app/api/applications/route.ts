@@ -167,6 +167,8 @@ export async function POST(request: NextRequest) {
       )
     }
     
+    console.log('Session data:', JSON.stringify(session, null, 2));
+    
     const typedSessionUser = (session as Session & { user: SessionUser }).user;
     
     let body;
@@ -178,6 +180,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+    
+    console.log('Request body:', JSON.stringify(body, null, 2));
     
     // Validate input
     const validatedData = applicationSchema.safeParse(body)
@@ -218,6 +222,8 @@ export async function POST(request: NextRequest) {
         jpeg: generateDownloadLink(validatedData.data.service, 'jpeg')
       }
     })
+    
+    console.log('Application object to save:', JSON.stringify(application, null, 2));
     
     await application.save()
     
@@ -274,10 +280,19 @@ export async function POST(request: NextRequest) {
       )
     }
     
+    // Log the full error for debugging
+    console.error('Full error details:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+      code: error.code
+    });
+    
     return NextResponse.json(
       { 
         error: 'Internal server error', 
-        message: 'Failed to submit application. Please try again later.' 
+        message: 'Failed to submit application. Please try again later.',
+        details: error.message || 'Unknown error occurred'
       },
       { status: 500 }
     )
