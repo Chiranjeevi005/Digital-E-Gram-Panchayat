@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/dbConnect'
 import Application from '@/models/Application'
 import Service from '@/models/Service'
+import User from '@/models/User'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { z } from 'zod'
@@ -171,6 +172,18 @@ export async function POST(request: NextRequest) {
     
     const typedSessionUser = (session as Session & { user: SessionUser }).user;
     
+    // Verify that the user actually exists in the database
+    const userExists = await User.findById(typedSessionUser.id);
+    if (!userExists) {
+      return NextResponse.json(
+        { 
+          error: 'User account not found', 
+          message: 'Your user account could not be found. Please log out and log back in.' 
+        },
+        { status: 400 }
+      )
+    }
+    
     let body;
     try {
       body = await request.json()
@@ -277,6 +290,17 @@ export async function POST(request: NextRequest) {
           message: 'An application with this data already exists' 
         },
         { status: 409 }
+      )
+    }
+    
+    // Handle the specific case where the user doesn't exist
+    if (error.message && error.message.includes('Applicant user with ID')) {
+      return NextResponse.json(
+        { 
+          error: 'User not found', 
+          message: 'Your user account could not be found. Please try logging in again.' 
+        },
+        { status: 400 }
       )
     }
     
