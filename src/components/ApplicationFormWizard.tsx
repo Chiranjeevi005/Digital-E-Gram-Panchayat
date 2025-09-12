@@ -782,7 +782,7 @@ export default function ApplicationFormWizard({
           // Show error notification to user
           const errorMessage = errorData.error || errorData.message || 'Application submission failed'
           const { showNotification } = await import('@/lib/documentGenerator')
-          showNotification(`Submission Error: ${errorMessage}`, 'error')
+          showNotification(`Submission Error: ${errorMessage}`)
           
           // Log detailed error information
           console.error('Submission error:', {
@@ -795,7 +795,7 @@ export default function ApplicationFormWizard({
         // Handle network errors or other exceptions
         const errorMessage = error instanceof Error ? error.message : 'Network error or unknown issue'
         const { showNotification } = await import('@/lib/documentGenerator')
-        showNotification(`Submission Error: ${errorMessage}`, 'error')
+        showNotification(`Submission Error: ${errorMessage}`)
         
         console.error('Submission error:', error)
       }
