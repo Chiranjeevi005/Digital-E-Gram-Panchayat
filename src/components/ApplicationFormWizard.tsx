@@ -767,11 +767,36 @@ export default function ApplicationFormWizard({
             onSubmit(formData)
           }
         } else {
-          const errorData = await response.json()
-          // Handle error
-          console.error('Submission error:', errorData)
+          // Handle error with more detailed information
+          let errorData;
+          try {
+            errorData = await response.json()
+          } catch (parseError) {
+            // If JSON parsing fails, use the status text
+            errorData = {
+              message: response.statusText || 'Unknown error occurred',
+              status: response.status
+            }
+          }
+          
+          // Show error notification to user
+          const errorMessage = errorData.error || errorData.message || 'Application submission failed'
+          const { showNotification } = await import('@/lib/documentGenerator')
+          showNotification(`Submission Error: ${errorMessage}`, 'error')
+          
+          // Log detailed error information
+          console.error('Submission error:', {
+            status: response.status,
+            statusText: response.statusText,
+            errorData: errorData
+          })
         }
       } catch (error) {
+        // Handle network errors or other exceptions
+        const errorMessage = error instanceof Error ? error.message : 'Network error or unknown issue'
+        const { showNotification } = await import('@/lib/documentGenerator')
+        showNotification(`Submission Error: ${errorMessage}`, 'error')
+        
         console.error('Submission error:', error)
       }
     }

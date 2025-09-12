@@ -162,21 +162,33 @@ export async function POST(request: NextRequest) {
     // Check if user is authenticated
     if (!session || !(session as Session & { user: { id?: string } }).user) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized: Please log in to submit an application' },
         { status: 401 }
       )
     }
     
     const typedSessionUser = (session as Session & { user: SessionUser }).user;
     
-    const body = await request.json()
+    let body;
+    try {
+      body = await request.json()
+    } catch (parseError) {
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body' },
+        { status: 400 }
+      )
+    }
     
     // Validate input
     const validatedData = applicationSchema.safeParse(body)
     
     if (!validatedData.success) {
       return NextResponse.json(
-        { error: 'Validation error', details: validatedData.error.flatten() },
+        { 
+          error: 'Validation error', 
+          details: validatedData.error.flatten(),
+          message: 'Please check your form data and try again'
+        },
         { status: 400 }
       )
     }
@@ -185,7 +197,7 @@ export async function POST(request: NextRequest) {
     const service = await Service.findById(validatedData.data.service)
     if (!service) {
       return NextResponse.json(
-        { error: 'Service not found' },
+        { error: 'Service not found', message: 'The selected service could not be found' },
         { status: 404 }
       )
     }
@@ -239,8 +251,34 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(appResponse, { status: 201 })
   } catch (error: any) {
     console.error('Error creating application:', error)
+    
+    // Provide more specific error messages
+    if (error.name === 'ValidationError') {
+      return NextResponse.json(
+        { 
+          error: 'Validation failed', 
+          message: 'Please check your form data and try again',
+          details: error.message 
+        },
+        { status: 400 }
+      )
+    }
+    
+    if (error.name === 'MongoServerError' && error.code === 11000) {
+      return NextResponse.json(
+        { 
+          error: 'Duplicate entry', 
+          message: 'An application with this data already exists' 
+        },
+        { status: 409 }
+      )
+    }
+    
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error', 
+        message: 'Failed to submit application. Please try again later.' 
+      },
       { status: 500 }
     )
   }

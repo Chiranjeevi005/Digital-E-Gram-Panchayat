@@ -49,7 +49,11 @@ async function dbConnect(): Promise<Connection> {
     }
 
     cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
+      console.log('MongoDB connected successfully')
       return mongoose.connection
+    }).catch((error) => {
+      console.error('MongoDB connection error:', error)
+      throw new Error('Failed to connect to MongoDB. Please check your connection string and network connectivity.')
     })
   }
   
@@ -57,8 +61,9 @@ async function dbConnect(): Promise<Connection> {
     cached.conn = await cached.promise
     return cached.conn
   } catch (e) {
+    console.error('Database connection failed:', e)
     cached.promise = null
-    throw e
+    throw new Error('Database connection failed. Please try again later.')
   }
 }
 
