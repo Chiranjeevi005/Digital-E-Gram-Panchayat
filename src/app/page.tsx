@@ -15,14 +15,33 @@ export default function Home() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
-      router.push(`/user/services?search=${encodeURIComponent(searchQuery)}`)
+      // Redirect to login if not authenticated, otherwise go to services
+      if (status !== 'authenticated') {
+        router.push(`/auth/signin?callbackUrl=/citizen/services?search=${encodeURIComponent(searchQuery)}`)
+      } else {
+        router.push(`/citizen/services?search=${encodeURIComponent(searchQuery)}`)
+      }
     }
   }
 
   const handleTrackApplication = (e: React.FormEvent) => {
     e.preventDefault()
     if (trackingId.trim()) {
-      router.push(`/user/applications/${trackingId}`)
+      // Redirect to login if not authenticated, otherwise go to application details
+      if (status !== 'authenticated') {
+        router.push(`/auth/signin?callbackUrl=/citizen/applications/${trackingId}`)
+      } else {
+        router.push(`/citizen/applications/${trackingId}`)
+      }
+    }
+  }
+
+  const handleApplyServices = () => {
+    // Redirect to login if not authenticated, otherwise go to services
+    if (status !== 'authenticated') {
+      router.push('/auth/signin?callbackUrl=/citizen/services')
+    } else {
+      router.push('/citizen/services')
     }
   }
 
@@ -144,15 +163,15 @@ export default function Home() {
           
           {/* Action Buttons with enhanced styling */}
           <div className="mt-12 flex flex-col sm:flex-row justify-center gap-6">
-            <Link 
-              href={status === 'authenticated' ? '/user/services' : '/auth/register'}
+            <button 
+              onClick={handleApplyServices}
               className="inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-xl shadow-xl text-white bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-offset-blue-900 transition-all duration-300 transform hover:-translate-y-1"
             >
               Apply for Services
               <svg xmlns="http://www.w3.org/2000/svg" className="ml-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clipRule="evenodd" />
               </svg>
-            </Link>
+            </button>
             <Link 
               href="#track-application" 
               className="inline-flex items-center px-8 py-4 border border-white text-lg font-medium rounded-xl shadow-xl text-white bg-transparent hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white focus:ring-offset-blue-900 transition-all duration-300 backdrop-blur-sm"
@@ -245,15 +264,15 @@ export default function Home() {
                       {service.description}
                     </p>
                     <div className="mt-6">
-                      <Link
-                        href={status === 'authenticated' ? `/user/services` : '/auth/register'}
+                      <button
+                        onClick={handleApplyServices}
                         className="text-blue-600 hover:text-blue-800 font-medium flex items-center transition-colors duration-200"
                       >
                         Apply Now
                         <svg className="ml-1 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
-                      </Link>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -312,7 +331,7 @@ export default function Home() {
             <div>
               <h4 className="text-lg font-semibold font-heading">Quick Links</h4>
               <ul className="mt-4 space-y-2">
-                <li><Link href="/user/services" className="text-gray-300 hover:text-white transition-colors duration-200">Services</Link></li>
+                <li><button onClick={handleApplyServices} className="text-gray-300 hover:text-white transition-colors duration-200">Services</button></li>
                 <li><Link href="/contact" className="text-gray-300 hover:text-white transition-colors duration-200">Contact</Link></li>
                 <li><Link href="#" className="text-gray-300 hover:text-white transition-colors duration-200">About Us</Link></li>
                 <li><Link href="#" className="text-gray-300 hover:text-white transition-colors duration-200">FAQ</Link></li>

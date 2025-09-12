@@ -52,9 +52,9 @@ export async function GET(request: NextRequest) {
     
     // Check permissions
     const isAuthorized = 
-      (typedSessionUser.role === 'user' && application.applicant.toString() === typedSessionUser.id) ||
-      (typedSessionUser.role === 'staff' && application.assignedTo && application.assignedTo.toString() === typedSessionUser.id) ||
-      typedSessionUser.role === 'officer'
+      ((typedSessionUser.role === 'user' || typedSessionUser.role === 'citizen' || typedSessionUser.role === 'Citizens') && application.applicant.toString() === typedSessionUser.id) ||
+      ((typedSessionUser.role === 'staff' || typedSessionUser.role === 'Staff') && application.assignedTo && application.assignedTo.toString() === typedSessionUser.id) ||
+      (typedSessionUser.role === 'officer' || typedSessionUser.role === 'Officer')
     
     if (!isAuthorized) {
       return NextResponse.json(

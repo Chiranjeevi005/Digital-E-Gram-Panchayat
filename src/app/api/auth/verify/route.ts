@@ -5,9 +5,9 @@ import { authOptions } from '@/lib/auth'
 export async function GET() {
   try {
     // Get the session
-    const session = await getServerSession(authOptions)
+    const session: any = await getServerSession(authOptions)
     
-    if (!session) {
+    if (!session || !session.user) {
       return NextResponse.json(
         { 
           success: false, 

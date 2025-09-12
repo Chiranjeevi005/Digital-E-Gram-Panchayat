@@ -173,8 +173,8 @@ export default function OfficerDashboard() {
   const inactiveServices = services.filter(service => !service.isActive).length
   
   const totalUsers = users.length
-  const staffUsers = users.filter(user => user.role === 'staff').length
-  const citizenUsers = users.filter(user => user.role === 'user').length
+  const staffUsers = users.filter(user => user.role === 'staff' || user.role === 'Staff').length
+  const citizenUsers = users.filter(user => user.role === 'user' || user.role === 'citizen' || user.role === 'Citizens').length
 
   // Don't render anything on the server to avoid hydration issues
   if (!isClient) {
@@ -230,7 +230,7 @@ export default function OfficerDashboard() {
                 </button>
               </div>
               <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
-                <Sidebar role="officer" />
+                <Sidebar role="Officer" />
               </div>
             </div>
           </div>
@@ -239,7 +239,7 @@ export default function OfficerDashboard() {
       
       <div className="flex flex-1 overflow-hidden">
         <div className="hidden md:block w-64 flex-shrink-0">
-          <Sidebar role="officer" />
+          <Sidebar role="Officer" />
         </div>
         
         <main className="flex-1 overflow-y-auto">

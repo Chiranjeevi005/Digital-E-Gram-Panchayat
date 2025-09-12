@@ -49,6 +49,8 @@ interface ApplicationFormWizardProps {
   onCancel: () => void
   submitting?: boolean
   error?: string
+  // Add a new prop for redirecting after submission
+  onSuccessfulSubmit?: (applicationId: string) => void
 }
 
 // Define the session user type
@@ -65,7 +67,8 @@ export default function ApplicationFormWizard({
   service, 
   onSubmit, 
   submitting = false,
-  error = ''
+  error = '',
+  onSuccessfulSubmit // Add this new prop
 }: Omit<ApplicationFormWizardProps, 'onCancel'>) {
   const { data: session } = useSession()
   const [currentStep, setCurrentStep] = useState(1)
@@ -738,10 +741,39 @@ export default function ApplicationFormWizard({
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (validateStep(currentStep)) {
-      onSubmit(formData)
+      // Instead of calling onSubmit directly, we'll handle the submission here
+      try {
+        const response = await fetch('/api/applications', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            service: service._id,
+            formData
+          }),
+        })
+        
+        if (response.ok) {
+          const application = await response.json()
+          // If onSuccessfulSubmit is provided, call it with the application ID
+          if (onSuccessfulSubmit) {
+            onSuccessfulSubmit(application._id)
+          } else {
+            // Fallback to the original onSubmit
+            onSubmit(formData)
+          }
+        } else {
+          const errorData = await response.json()
+          // Handle error
+          console.error('Submission error:', errorData)
+        }
+      } catch (error) {
+        console.error('Submission error:', error)
+      }
     }
   }
 

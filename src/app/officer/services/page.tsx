@@ -61,8 +61,8 @@ export default function OfficerServices() {
       const response = await fetch('/api/services')
       const data = await response.json()
       if (response.ok) {
-        setServices(data)
-        setFilteredServices(data)
+        setServices(data.sort((a: ServiceType, b: ServiceType) => a.name.localeCompare(b.name)))
+        setFilteredServices(data.sort((a: ServiceType, b: ServiceType) => a.name.localeCompare(b.name)))
       }
     } catch (error) {
       console.error('Error fetching services:', error)
@@ -101,7 +101,7 @@ export default function OfficerServices() {
       )
     }
 
-    setFilteredServices(result)
+    setFilteredServices(result.sort((a: ServiceType, b: ServiceType) => a.name.localeCompare(b.name)))
   }
 
   const handleEditService = (service: ServiceType) => {
@@ -254,7 +254,7 @@ export default function OfficerServices() {
       <Navbar />
       
       <div className="flex-grow flex">
-        <Sidebar role="officer" />
+        <Sidebar role="Officer" />
         
         <main className="flex-grow max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 w-full">
           <div className="px-4 py-6 sm:px-0">

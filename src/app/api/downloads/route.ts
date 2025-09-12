@@ -5,6 +5,7 @@ import DownloadHistory from '@/models/DownloadHistory'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { Session } from 'next-auth'
+import { sendSystemNotification } from '@/lib/notificationService'
 
 interface DownloadHistoryType {
   _id: string
@@ -14,6 +15,7 @@ interface DownloadHistoryType {
   fileType: 'pdf' | 'jpeg'
   status: 'pending' | 'completed'
   createdAt: string
+  applicationId: string
 }
 
 type SessionUser = {
@@ -40,7 +42,9 @@ export async function GET(_request: NextRequest) {
     const typedSessionUser = (session as Session & { user: SessionUser }).user;
     
     // Only users can access their own download history
-    if (typedSessionUser.role !== 'user' && typedSessionUser.role !== 'citizen') {
+    // Normalize role checking to handle both old and new role names
+    const isCitizen = typedSessionUser.role === 'user' || typedSessionUser.role === 'citizen' || typedSessionUser.role === 'Citizens';
+    if (!isCitizen) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -49,6 +53,7 @@ export async function GET(_request: NextRequest) {
     
     const downloads: any = await DownloadHistory.find({ user: typedSessionUser.id })
       .populate('service', 'name')
+      .populate('application', 'service')
       .sort({ createdAt: -1 })
     
     const downloadResponse: DownloadHistoryType[] = downloads.map((download: any) => ({
@@ -57,6 +62,7 @@ export async function GET(_request: NextRequest) {
       fileType: download.fileType,
       status: download.status,
       createdAt: download.createdAt,
+      applicationId: download.application._id.toString()
     }))
     
     return NextResponse.json(downloadResponse)
@@ -86,7 +92,9 @@ export async function POST(request: NextRequest) {
     const typedSessionUser = (session as Session & { user: SessionUser }).user;
     
     // Only users can download documents
-    if (typedSessionUser.role !== 'user' && typedSessionUser.role !== 'citizen') {
+    // Normalize role checking to handle both old and new role names
+    const isCitizen = typedSessionUser.role === 'user' || typedSessionUser.role === 'citizen' || typedSessionUser.role === 'Citizens';
+    if (!isCitizen) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -94,55 +102,75 @@ export async function POST(request: NextRequest) {
     }
     
     const body = await request.json()
-    const { applicationId, fileType } = body
+    const { downloadId, fileType } = body
     
-    // Verify the application belongs to the user and is approved
-    const application: any = await Application.findById(applicationId)
+    // Find the existing download history entry
+    const existingDownload: any = await DownloadHistory.findById(downloadId)
+      .populate('application', 'service formData')
       .populate('service', 'name')
     
-    if (!application) {
+    if (!existingDownload) {
       return NextResponse.json(
-        { error: 'Application not found' },
+        { error: 'Download history not found' },
         { status: 404 }
       )
     }
     
-    if (application.applicant.toString() !== typedSessionUser.id) {
+    // Verify the download belongs to the user
+    if (existingDownload.user.toString() !== typedSessionUser.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       )
     }
     
-    if (application.status !== 'approved') {
-      return NextResponse.json(
-        { error: 'Application not approved' },
-        { status: 400 }
-      )
-    }
-    
-    // Create a download history entry
+    // Create a new download history entry for the new format
     const downloadHistory = new DownloadHistory({
-      application: applicationId,
+      application: existingDownload.application._id,
       user: typedSessionUser.id,
-      service: application.service._id,
+      service: existingDownload.service._id,
       fileType: fileType,
       status: 'completed'
     })
     
     await downloadHistory.save()
     
+    // Send real-time notification
+    await sendSystemNotification(
+      typedSessionUser.id,
+      `Your ${existingDownload.service.name} document (${fileType.toUpperCase()}) download has started`,
+      'info'
+    )
+    
+    // Simulate download progress (in a real implementation, this would be actual file generation)
+    // For now, we'll just send a completion notification
+    setTimeout(async () => {
+      await sendSystemNotification(
+        typedSessionUser.id,
+        `Your ${existingDownload.service.name} document (${fileType.toUpperCase()}) has been downloaded successfully`,
+        'success'
+      )
+    }, 3000)
+    
     // Return success response with download information
     return NextResponse.json({
       message: 'Document ready for download',
-      applicationId,
+      downloadId: downloadHistory._id,
       fileType,
-      serviceName: application.service.name
+      serviceName: existingDownload.service.name,
+      applicationId: existingDownload.application._id
     })
   } catch (error: any) {
     console.error('Error processing download:', error)
+    // Return a more specific error message
+    if (error.name === 'CastError') {
+      return NextResponse.json(
+        { error: 'Invalid download ID format' },
+        { status: 400 }
+      )
+    }
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error.message },
       { status: 500 }
     )
   }

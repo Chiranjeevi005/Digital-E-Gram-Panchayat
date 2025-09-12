@@ -30,6 +30,7 @@ const ApplicationSchema: Schema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
+      // Add validation to ensure referenced user exists
     },
     status: {
       type: String,
@@ -75,8 +76,36 @@ const ApplicationSchema: Schema = new Schema(
   }
 )
 
+// Add indexes for better query performance
 ApplicationSchema.index({ applicant: 1 })
 ApplicationSchema.index({ service: 1 })
 ApplicationSchema.index({ status: 1 })
+
+// Add a pre-save hook to validate references
+ApplicationSchema.pre('save', async function(next) {
+  // Validate that the applicant user exists
+  if (this.applicant) {
+    const User = mongoose.models.User;
+    if (User) {
+      const user = await User.findById(this.applicant);
+      if (!user) {
+        return next(new Error('Applicant user does not exist'));
+      }
+    }
+  }
+  
+  // Validate that the service exists
+  if (this.service) {
+    const Service = mongoose.models.Service;
+    if (Service) {
+      const service = await Service.findById(this.service);
+      if (!service) {
+        return next(new Error('Service does not exist'));
+      }
+    }
+  }
+  
+  next();
+});
 
 export default mongoose.models.Application || mongoose.model<IApplication>('Application', ApplicationSchema)

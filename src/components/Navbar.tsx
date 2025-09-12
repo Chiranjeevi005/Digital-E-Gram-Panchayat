@@ -28,13 +28,14 @@ export default function Navbar() {
     const role = (session.user as any).role
     console.log('User role for dashboard path:', role) // Debug log
     switch (role) {
-      case 'citizen': 
-      case 'user': // Handle 'user' role as well for backward compatibility
-        return '/user/dashboard'
-      case 'staff': return '/staff/dashboard'
-      case 'admin': 
-      case 'officer': return '/officer/dashboard'
-      default: return '/'
+      case 'Citizens': 
+        return '/citizen/dashboard'
+      case 'Staff': 
+        return '/staff/dashboard'
+      case 'Officer': 
+        return '/officer/dashboard'
+      default: 
+        return '/'
     }
   }
 
@@ -115,9 +116,9 @@ export default function Navbar() {
           {/* Right side - Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:space-x-1">
             <Link
-              href="/user/services"
+              href="/citizen/services"
               onClick={handleLinkClick}
-              className={`px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${isActive('/user/services')
+              className={`px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${isActive('/citizen/services')
                 ? 'bg-blue-50 text-blue-700'
                 : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                 }`}
@@ -154,7 +155,7 @@ export default function Navbar() {
                     {session.user.name?.charAt(0).toUpperCase() || 'U'}
                   </div>
                   <span className="text-sm font-medium text-gray-700 hidden lg:block">
-                    {session.user.name || session.user.email || 'User'}
+                    {session.user.name ? session.user.name.split(' ')[0] : session.user.email || 'User'}
                   </span>
                 </div>
                 <button
@@ -238,9 +239,9 @@ export default function Navbar() {
         <div className="border-t border-gray-200 bg-white shadow-lg">
           <div className="pt-2 pb-3 space-y-1 px-2">
             <Link
-              href="/user/services"
+              href="/citizen/services"
               onClick={handleLinkClick}
-              className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${isActive('/user/services')
+              className={`block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${isActive('/citizen/services')
                 ? 'bg-blue-50 text-blue-700'
                 : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
                 }`}
@@ -267,7 +268,7 @@ export default function Navbar() {
                 </div>
                 <div className="ml-3">
                   <div className="text-base font-medium text-gray-800">
-                    {session.user.name || session.user.email || 'User'}
+                    {session.user.name ? session.user.name.split(' ')[0] : session.user.email || 'User'}
                   </div>
                   <div className="text-sm font-medium text-gray-500">{session.user.email}</div>
                 </div>

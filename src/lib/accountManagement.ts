@@ -12,7 +12,7 @@
  */
 export async function downloadAccountData() {
   try {
-    const response = await fetch('/api/user/account/data')
+    const response = await fetch('/api/citizen/account/data')
     
     if (response.ok) {
       const data = await response.json()
@@ -42,7 +42,7 @@ export async function downloadAccountData() {
  */
 export async function deactivateAccount() {
   try {
-    const response = await fetch('/api/user/deactivate', {
+    const response = await fetch('/api/citizen/deactivate', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -66,7 +66,7 @@ export async function deactivateAccount() {
  */
 export async function deleteAccount() {
   try {
-    const response = await fetch('/api/user/account/delete', {
+    const response = await fetch('/api/citizen/account/delete', {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json'

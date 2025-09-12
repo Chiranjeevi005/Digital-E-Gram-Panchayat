@@ -63,17 +63,22 @@ export async function GET() {
     let applications: ApplicationType[] = []
     
     // Different queries based on user role
-    if (typedSessionUser.role === 'user' || typedSessionUser.role === 'citizen') {
+    // Normalize role checking to handle both old and new role names
+    const isCitizen = typedSessionUser.role === 'user' || typedSessionUser.role === 'citizen' || typedSessionUser.role === 'Citizens';
+    const isStaff = typedSessionUser.role === 'staff' || typedSessionUser.role === 'Staff';
+    const isOfficer = typedSessionUser.role === 'officer' || typedSessionUser.role === 'Officer';
+    
+    if (isCitizen) {
       // Users can only see their own applications
       const apps: any = await Application.find({ applicant: typedSessionUser.id })
         .populate('service', 'name')
-        .populate('applicant', 'name email') // Fix: populate applicant information
+        .populate('applicant', 'name email')
         .sort({ createdAt: -1 })
       
       applications = apps.map((app: any) => ({
         _id: app._id.toString(),
         service: app.service,
-        applicant: app.applicant, // Fix: use populated applicant data
+        applicant: app.applicant,
         status: app.status,
         formData: app.formData,
         assignedTo: app.assignedTo,
@@ -83,7 +88,7 @@ export async function GET() {
         createdAt: app.createdAt,
         updatedAt: app.updatedAt
       }))
-    } else if (typedSessionUser.role === 'staff') {
+    } else if (isStaff) {
       // Staff can see applications assigned to them
       const apps: any = await Application.find({ assignedTo: typedSessionUser.id })
         .populate('service', 'name')
@@ -103,7 +108,7 @@ export async function GET() {
         createdAt: app.createdAt,
         updatedAt: app.updatedAt
       }))
-    } else if (typedSessionUser.role === 'officer') {
+    } else if (isOfficer) {
       // Officers can see all applications
       const apps: any = await Application.find()
         .populate('service', 'name')

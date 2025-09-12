@@ -206,7 +206,7 @@ function OfficerApplicationsContent() {
                 </button>
               </div>
               <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
-                <Sidebar role="officer" />
+                <Sidebar role="Officer" />
               </div>
             </div>
           </div>
@@ -215,7 +215,7 @@ function OfficerApplicationsContent() {
       
       <div className="flex flex-1">
         <div className="hidden md:block w-64">
-          <Sidebar role="officer" />
+          <Sidebar role="Officer" />
         </div>
         
         <main className="flex-1 p-6">

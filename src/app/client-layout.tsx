@@ -2,6 +2,8 @@
 
 import { SessionProvider } from 'next-auth/react'
 import { ReactNode } from 'react'
+import { NotificationProvider } from '@/contexts/NotificationContext'
+import ToastContainer from '@/components/Toast'
 
 export default function ClientLayout({
   children,
@@ -10,7 +12,10 @@ export default function ClientLayout({
 }) {
   return (
     <SessionProvider>
-      {children}
+      <NotificationProvider>
+        {children}
+        <ToastContainer />
+      </NotificationProvider>
     </SessionProvider>
   )
 }

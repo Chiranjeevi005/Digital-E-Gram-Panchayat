@@ -23,7 +23,6 @@ The system provides a digital platform for citizens to access government service
 ### User Registration and Authentication
 - Role-based authentication (Citizen, Staff, Officer)
 - Secure sign-in with email and password
-- Google Sign-In exclusively for citizens
 - Session management using NextAuth.js
 - Account creation limits (Citizens: Unlimited, Staff: Maximum 2, Officer: Maximum 1)
 
@@ -129,9 +128,6 @@ The system provides a digital platform for citizens to access government service
 - Signed URLs for downloads with short expiration
 
 ### OAuth Integration Security
-- Google Sign-In exclusively for citizens
-- Role restriction (Admin/Staff prohibited from Google Sign-In)
-- Automatic role assignment for Google users
 - Secure token handling
 
 ## User Roles and Authentication
@@ -153,11 +149,6 @@ The system provides a digital platform for citizens to access government service
    - Email + Password authentication
    - Passwords are securely hashed using bcrypt
    - Strong password policy enforcement for Admin and Staff roles
-
-2. Google Sign-In (Citizens Only)
-   - Integrated with NextAuth.js
-   - Available only for Citizen role
-   - Admin and Staff roles cannot use Google Sign-In
 
 ## Services Implementation
 

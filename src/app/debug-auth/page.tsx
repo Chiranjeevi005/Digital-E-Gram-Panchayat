@@ -12,26 +12,9 @@ export default function DebugAuth() {
     // Check environment variables
     setEnvVars({
       NEXTAUTH_URL: process.env.NEXTAUTH_URL,
-      GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ? 'SET' : 'NOT SET',
-      GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET ? 'SET' : 'NOT SET',
       NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ? 'SET' : 'NOT SET'
     })
   }, [])
-
-  const handleGoogleSignIn = async () => {
-    try {
-      console.log('Attempting Google Sign-In...')
-      const result = await signIn('google', {
-        callbackUrl: '/debug-auth',
-        redirect: false
-      })
-      setAuthResult(result)
-      console.log('Google Sign-In Result:', result)
-    } catch (error) {
-      setAuthResult(error)
-      console.error('Google Sign-In Error:', error)
-    }
-  }
 
   const handleCredentialsSignIn = async () => {
     try {
@@ -80,12 +63,6 @@ export default function DebugAuth() {
       
       <div style={{ marginBottom: '20px' }}>
         <h2>Test Authentication</h2>
-        <button 
-          onClick={handleGoogleSignIn} 
-          style={{ padding: '10px 20px', margin: '5px', fontSize: '16px' }}
-        >
-          Sign in with Google
-        </button>
         <button 
           onClick={handleCredentialsSignIn} 
           style={{ padding: '10px 20px', margin: '5px', fontSize: '16px' }}

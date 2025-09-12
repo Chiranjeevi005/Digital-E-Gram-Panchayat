@@ -156,7 +156,7 @@ export default function ContactPage() {
                   <div className="mt-1 text-blue-100">(Toll-free)</div>
                 </div>
                 <Link 
-                  href="/user/services" 
+                  href="/citizen/services" 
                   className="mt-6 inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white"
                 >
                   Explore Our Services
@@ -364,7 +364,7 @@ export default function ContactPage() {
             <div>
               <h4 className="text-lg font-semibold font-heading">Quick Links</h4>
               <ul className="mt-4 space-y-2">
-                <li><Link href="/user/services" className="text-gray-300 hover:text-white">Services</Link></li>
+                <li><Link href="/citizen/services" className="text-gray-300 hover:text-white">Services</Link></li>
                 <li><Link href="/contact" className="text-gray-300 hover:text-white">Contact</Link></li>
                 <li><Link href="#" className="text-gray-300 hover:text-white">About Us</Link></li>
                 <li><Link href="#" className="text-gray-300 hover:text-white">FAQ</Link></li>

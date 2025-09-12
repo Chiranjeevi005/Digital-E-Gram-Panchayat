@@ -82,8 +82,8 @@ export async function POST(request: NextRequest) {
     
     const typedSessionUser = (session as Session & { user: SessionUser }).user;
     
-    // Changed from 'officer' to 'admin'
-    if (typedSessionUser.role !== 'admin') {
+    // Allow both 'admin' and 'officer' roles
+    if (typedSessionUser.role !== 'admin' && typedSessionUser.role !== 'officer') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }

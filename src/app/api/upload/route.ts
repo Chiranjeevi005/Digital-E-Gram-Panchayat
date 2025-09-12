@@ -39,13 +39,16 @@ export async function POST(request: NextRequest) {
       )
     }
     
+    // Log file details for debugging
+    console.log(`File upload attempt - Name: ${file.name}, Type: ${file.type}, Size: ${file.size} bytes`);
+    
     // Validate file type and size
     const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf']
     const maxSize = 5 * 1024 * 1024 // 5MB
     
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: 'Invalid file type: Only JPEG, PNG, and PDF files are allowed' },
+        { error: `Invalid file type: Only JPEG, PNG, and PDF files are allowed. Received: ${file.type}` },
         { status: 400 }
       )
     }
@@ -74,14 +77,24 @@ export async function POST(request: NextRequest) {
     const folder = `digital_e_panchayat/applications/${applicationId}`
     const fileName = `${fieldName}_${Date.now()}_${file.name}`
     
-    const uploadResult = await uploadFileToCloudinary(buffer, fileName, folder)
-    
-    // Return the file URL and public ID
-    return NextResponse.json({
-      url: uploadResult.secure_url,
-      publicId: uploadResult.public_id,
-      fieldName: fieldName
-    })
+    try {
+      console.log(`Uploading file: ${file.name} (${file.type}) with size ${file.size} bytes to folder: ${folder}`);
+      const uploadResult = await uploadFileToCloudinary(buffer, fileName, folder)
+      console.log('Upload successful:', uploadResult.secure_url)
+      
+      // Return the file URL and public ID
+      return NextResponse.json({
+        url: uploadResult.secure_url,
+        publicId: uploadResult.public_id,
+        fieldName: fieldName
+      })
+    } catch (uploadError: any) {
+      console.error('Error uploading file to Cloudinary:', uploadError)
+      return NextResponse.json(
+        { error: `Failed to upload file: ${uploadError.message || 'Unknown error'}` },
+        { status: 500 }
+      )
+    }
   } catch (error: any) {
     console.error('Error uploading file:', error)
     
@@ -94,7 +107,7 @@ export async function POST(request: NextRequest) {
     }
     
     return NextResponse.json(
-      { error: 'Internal server error: Failed to upload file' },
+      { error: `Internal server error: ${error.message || 'Failed to upload file'}` },
       { status: 500 }
     )
   }

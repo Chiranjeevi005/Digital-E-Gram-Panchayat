@@ -193,14 +193,14 @@ export default function DebugHealth() {
           </div>
           <div className="border-t border-gray-200">
             <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-md font-medium text-gray-900 mb-2">If you're still experiencing issues:</h3>
+              <h3 className="text-md font-medium text-gray-900 mb-2">If you&apos;re still experiencing issues:</h3>
               <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600">
                 <li>Verify that your Google OAuth client is properly configured in the Google Cloud Console</li>
                 <li>Ensure the redirect URI exactly matches: <span className="font-mono break-all">{googleConfigData?.configuration?.expectedRedirectUri}</span></li>
                 <li>Check that your OAuth client is not restricted to certain domains</li>
                 <li>Make sure the Google+ API is enabled for your project</li>
                 <li>Verify that your GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are correct</li>
-                <li>Check that your OAuth client is not in "Testing" mode if you're not a test user</li>
+                <li>Check that your OAuth client is not in &quot;Testing&quot; mode if you&apos;re not a test user</li>
               </ol>
             </div>
           </div>

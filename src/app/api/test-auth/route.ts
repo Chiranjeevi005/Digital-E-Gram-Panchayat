@@ -1,57 +1,39 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth/next'
+import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { NextResponse } from 'next/server'
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: Request) {
   try {
-    // Log the request for debugging
-    console.log('Test auth route called')
-    
-    // Get the session using the proper import
-    const session = await getServerSession(authOptions)
-    
-    console.log('Session retrieved:', session ? 'Found' : 'Not found')
+    const session: any = await getServerSession(authOptions)
     
     if (!session) {
-      return NextResponse.json(
+      return new NextResponse(
+        JSON.stringify({ message: 'Not authenticated' }), 
         { 
-          success: false, 
-          error: 'Not authenticated',
-          session: null
-        },
-        { status: 401 }
+          status: 401,
+          headers: { 'Content-Type': 'application/json' }
+        }
       )
     }
     
-    // Log session details for debugging
-    console.log('Session details:', {
-      userId: session.user.id,
-      name: session.user.name,
-      email: session.user.email,
-      role: session.user.role
-    })
-    
-    return NextResponse.json({
-      success: true,
-      message: 'Authentication successful',
-      session: {
-        user: {
-          id: session.user.id,
-          name: session.user.name,
-          email: session.user.email,
-          role: session.user.role
-        }
-      }
-    })
-  } catch (error: any) {
-    console.error('Error testing auth:', error)
-    return NextResponse.json(
+    return new NextResponse(
+      JSON.stringify({ 
+        message: 'Authenticated', 
+        user: session.user,
+        session 
+      }), 
       { 
-        success: false, 
-        error: 'Internal server error',
-        message: error.message
-      },
-      { status: 500 }
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    )
+  } catch (error) {
+    return new NextResponse(
+      JSON.stringify({ error: 'Internal server error' }), 
+      { 
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
     )
   }
 }

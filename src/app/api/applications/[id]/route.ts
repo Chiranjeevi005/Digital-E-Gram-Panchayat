@@ -88,24 +88,40 @@ export async function GET(
     }
     
     // Check permissions
-    if (typedSessionUser.role === 'user' && application.applicant._id.toString() !== typedSessionUser.id) {
+    // Normalize role checking to handle both old and new role names
+    const isCitizen = typedSessionUser.role === 'user' || typedSessionUser.role === 'citizen' || typedSessionUser.role === 'Citizens';
+    const isStaff = typedSessionUser.role === 'staff' || typedSessionUser.role === 'Staff';
+    const isOfficer = typedSessionUser.role === 'officer' || typedSessionUser.role === 'Officer';
+    
+    if (isCitizen && application.applicant && application.applicant._id.toString() !== typedSessionUser.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       )
     }
     
-    if (typedSessionUser.role === 'staff' && application.assignedTo && application.assignedTo.toString() !== typedSessionUser.id) {
+    if (isStaff && application.assignedTo && application.assignedTo.toString() !== typedSessionUser.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       )
     }
+    
+    // Ensure applicant exists before accessing its properties
+    const applicantData = application.applicant ? {
+      _id: application.applicant._id.toString(),
+      name: application.applicant.name,
+      email: application.applicant.email
+    } : {
+      _id: '',
+      name: 'Unknown User',
+      email: 'unknown@example.com'
+    };
     
     const appResponse: ApplicationType = {
       _id: application._id.toString(),
       service: application.service,
-      applicant: application.applicant,
+      applicant: applicantData,
       status: application.status,
       formData: application.formData,
       assignedTo: application.assignedTo,
@@ -123,8 +139,15 @@ export async function GET(
     return NextResponse.json(appResponse)
   } catch (error: any) {
     console.error('Error fetching application:', error)
+    // Return a more specific error message
+    if (error.name === 'CastError') {
+      return NextResponse.json(
+        { error: 'Invalid application ID format' },
+        { status: 400 }
+      )
+    }
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error.message },
       { status: 500 }
     )
   }
@@ -174,7 +197,12 @@ export async function PUT(
     const previousStatus = application.status;
     
     // Check permissions and update based on role
-    if (typedSessionUser.role === 'user') {
+    // Normalize role checking to handle both old and new role names
+    const isCitizen = typedSessionUser.role === 'user' || typedSessionUser.role === 'citizen' || typedSessionUser.role === 'Citizens';
+    const isStaff = typedSessionUser.role === 'staff' || typedSessionUser.role === 'Staff';
+    const isOfficer = typedSessionUser.role === 'officer' || typedSessionUser.role === 'Officer';
+    
+    if (isCitizen) {
       // Users can only update their own applications if still pending
       if (application.applicant._id.toString() !== typedSessionUser.id) {
         return NextResponse.json(
@@ -194,7 +222,7 @@ export async function PUT(
       if (validatedData.data.formData) {
         Object.assign(application.formData, validatedData.data.formData)
       }
-    } else if (typedSessionUser.role === 'staff') {
+    } else if (isStaff) {
       // Staff can update status if application is assigned to them
       if (!application.assignedTo || application.assignedTo.toString() !== typedSessionUser.id) {
         return NextResponse.json(
@@ -215,7 +243,7 @@ export async function PUT(
       if (validatedData.data.status && validatedData.data.status !== 'in-progress') {
         application.processedAt = new Date()
       }
-    } else if (typedSessionUser.role === 'officer') {
+    } else if (isOfficer) {
       // Officers can update anything
       if (validatedData.data.status) {
         application.status = validatedData.data.status

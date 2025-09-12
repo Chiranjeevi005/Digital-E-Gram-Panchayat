@@ -66,7 +66,7 @@ export async function PUT(request: NextRequest) {
     const typedSessionUser = (session as Session & { user: SessionUser }).user;
     
     // Check if user has staff role
-    if (typedSessionUser.role !== 'staff') {
+    if (typedSessionUser.role !== 'staff' && typedSessionUser.role !== 'Staff') {
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }
@@ -132,7 +132,7 @@ export async function GET(_request: NextRequest) {
     const typedSessionUser = (session as Session & { user: SessionUser }).user;
     
     // Check if user has staff role
-    if (typedSessionUser.role !== 'staff') {
+    if (typedSessionUser.role !== 'staff' && typedSessionUser.role !== 'Staff') {
       return NextResponse.json(
         { error: 'Forbidden' },
         { status: 403 }

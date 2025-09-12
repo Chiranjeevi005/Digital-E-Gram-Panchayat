@@ -1,21 +1,23 @@
-import mongoose from 'mongoose'
 import dotenv from 'dotenv'
-dotenv.config({ path: '.env.local' }) // Load environment variables from .env.local
-
-import dbConnect from '@/lib/dbConnect'
 import User from '@/models/User'
+import dbConnect from '@/lib/dbConnect'
+
+// Load environment variables
+dotenv.config()
 
 async function checkUsers() {
   try {
-    console.log('Connecting to database...')
+    // Connect to database
     await dbConnect()
     
-    console.log('Checking existing users...')
+    console.log('Connected to database')
+    
+    // Find all users
     const users = await User.find({})
     
-    console.log(`Found ${users.length} users:`)
+    console.log('Existing users:')
     users.forEach(user => {
-      console.log(`- ${user.name} (${user.email}) - ${user.role}`)
+      console.log(`- Email: ${user.email}, Role: ${user.role}, Provider: ${user.provider}`)
     })
     
     process.exit(0)

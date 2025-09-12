@@ -1,26 +1,21 @@
 services:
   - type: web
-    name: digital-e-panchayat
+    name: digital-e-panchayat-backend
     env: node
-    plan: free
-    buildCommand: npm run build
+    buildCommand: npm install
     startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
-      - key: NEXTAUTH_URL
-        value: https://digital-e-panchayat-4ut7amakj-chiranjeevi005s-projects.vercel.app
-      - key: NEXTAUTH_SECRET
-        value: your_production_nextauth_secret_here
       - key: MONGODB_URI
-        value: your_production_mongodb_uri_here
-      - key: GOOGLE_CLIENT_ID
-        value: your_production_google_client_id_here
-      - key: GOOGLE_CLIENT_SECRET
-        value: your_production_google_client_secret_here
+        sync: false
+      - key: NEXTAUTH_SECRET
+        sync: false
+      - key: NEXTAUTH_URL
+        value: https://your-app-name.vercel.app
       - key: CLOUDINARY_CLOUD_NAME
-        value: your_production_cloudinary_cloud_name_here
+        sync: false
       - key: CLOUDINARY_API_KEY
-        value: your_production_cloudinary_api_key_here
+        sync: false
       - key: CLOUDINARY_API_SECRET
-        value: your_production_cloudinary_api_secret_here
+        sync: false

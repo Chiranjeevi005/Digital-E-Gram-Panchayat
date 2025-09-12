@@ -67,13 +67,13 @@ const initializeAccounts = async () => {
       
       if (!existingUser) {
         // Check role limits before creating
-        if (account.role === 'staff') {
+        if (account.role === 'staff' || account.role === 'Staff') {
           const currentStaffCount = await User.countDocuments({ role: 'staff' })
           if (currentStaffCount >= 2) {
             console.log(`Skipping staff account creation - limit reached (${currentStaffCount}/2)`)
             continue
           }
-        } else if (account.role === 'officer') {
+        } else if (account.role === 'officer' || account.role === 'Officer') {
           const currentOfficerCount = await User.countDocuments({ role: 'officer' })
           if (currentOfficerCount >= 1) {
             console.log(`Skipping officer account creation - limit reached (${currentOfficerCount}/1)`)
@@ -99,9 +99,9 @@ const initializeAccounts = async () => {
     }
 
     // Verify final counts
-    const finalCitizenCount = await User.countDocuments({ role: 'user' })
-    const finalStaffCount = await User.countDocuments({ role: 'staff' })
-    const finalOfficerCount = await User.countDocuments({ role: 'officer' })
+    const finalCitizenCount = await User.countDocuments({ $or: [{ role: 'user' }, { role: 'citizen' }, { role: 'Citizens' }] })
+    const finalStaffCount = await User.countDocuments({ $or: [{ role: 'staff' }, { role: 'Staff' }] })
+    const finalOfficerCount = await User.countDocuments({ $or: [{ role: 'officer' }, { role: 'Officer' }] })
 
     console.log('\nFinal account counts:')
     console.log(`- Citizens: ${finalCitizenCount} (unlimited)`)

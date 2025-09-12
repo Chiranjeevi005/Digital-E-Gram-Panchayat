@@ -1,33 +1,28 @@
 import { NextResponse } from 'next/server'
+import dbConnect from '@/lib/dbConnect'
 
 export async function GET() {
   try {
+    // Test database connection
+    await dbConnect()
+    
     // Check environment variables
     const envCheck = {
-      NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'NOT SET',
-      GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ? 'SET' : 'NOT SET',
-      GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET ? 'SET' : 'NOT SET',
+      NEXTAUTH_URL: process.env.NEXTAUTH_URL ? 'SET' : 'NOT SET',
       NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ? 'SET' : 'NOT SET',
+      MONGODB_URI: process.env.MONGODB_URI ? 'SET' : 'NOT SET'
     }
-
-    // Check if required variables are present
-    const isConfigured = !!(
-      process.env.NEXTAUTH_URL && 
-      process.env.GOOGLE_CLIENT_ID && 
-      process.env.GOOGLE_CLIENT_SECRET && 
-      process.env.NEXTAUTH_SECRET
-    )
-
+    
+    // Check if required environment variables are set
+    const isConfigured = Object.values(envCheck).every(value => value === 'SET')
+    
     return NextResponse.json({
       success: true,
       message: 'Health check successful',
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV || 'development',
       envCheck,
-      isConfigured,
-      redirectUri: process.env.NEXTAUTH_URL 
-        ? `${process.env.NEXTAUTH_URL}/api/auth/callback/google` 
-        : 'NEXTAUTH_URL not set'
+      isConfigured
     })
   } catch (error) {
     console.error('Health check error:', error)

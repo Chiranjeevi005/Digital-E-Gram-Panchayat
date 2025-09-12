@@ -21,7 +21,7 @@ export default function AccountManagement() {
       setError('')
       setSuccess('')
       
-      const response = await fetch('/api/user/account/data')
+      const response = await fetch('/api/citizen/account/data')
       
       if (response.ok) {
         const data = await response.json()
@@ -54,7 +54,7 @@ export default function AccountManagement() {
       setError('')
       setSuccess('')
       
-      const response = await fetch('/api/user/deactivate', {
+      const response = await fetch('/api/citizen/deactivate', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -88,7 +88,7 @@ export default function AccountManagement() {
       setError('')
       setSuccess('')
       
-      const response = await fetch('/api/user/account/delete', {
+      const response = await fetch('/api/citizen/account/delete', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json'

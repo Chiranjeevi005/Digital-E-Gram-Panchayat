@@ -1,18 +1,22 @@
 import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { authOptions } from './auth'
 
-// Define role hierarchy
-export const roles = {
-  citizen: 1,
-  staff: 2,
-  admin: 3
-} as const
-
-export type Role = keyof typeof roles
+// Define role types that match our system
+export type Role = 'Citizens' | 'Staff' | 'Officer'
 
 // Check if user has required role
-export const hasRole = (userRole: Role, requiredRole: Role): boolean => {
-  return roles[userRole] >= roles[requiredRole]
+export const hasRole = (userRole: Role | undefined, requiredRole: Role): boolean => {
+  // If user role is not defined, they don't have the required role
+  if (!userRole) return false
+  
+  // Define role hierarchy (higher number means more privileges)
+  const roleHierarchy: Record<Role, number> = {
+    Citizens: 1,
+    Staff: 2,
+    Officer: 3
+  }
+  
+  return roleHierarchy[userRole] >= roleHierarchy[requiredRole]
 }
 
 // Middleware to protect routes based on roles
@@ -31,7 +35,7 @@ export const withRole = (requiredRole: Role) => {
     }
     
     // Check if user has required role
-    if (!hasRole(session.user.role as Role, requiredRole)) {
+    if (!hasRole(session.user?.role as Role | undefined, requiredRole)) {
       return {
         redirect: {
           destination: '/', // Redirect to home page or unauthorized page
@@ -58,5 +62,5 @@ export const isAuthenticated = async () => {
 // Helper function to get current user role
 export const getCurrentUserRole = async (): Promise<Role | null> => {
   const session = await getServerSession(authOptions)
-  return session?.user?.role as Role || null
+  return (session?.user?.role as Role) || null
 }

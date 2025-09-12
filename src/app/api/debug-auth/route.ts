@@ -13,7 +13,7 @@ export async function GET() {
     }
 
     // Check auth options
-    const providers = authOptions.providers.map(provider => {
+    const providers = authOptions.providers.map((provider: any) => {
       if (typeof provider === 'object' && provider !== null && 'id' in provider) {
         return {
           id: provider.id,

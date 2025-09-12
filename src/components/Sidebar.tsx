@@ -4,7 +4,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { 
-  HomeIcon, 
   DocumentTextIcon, 
   ClipboardIcon, 
   ChartBarIcon, 
@@ -17,75 +16,81 @@ import {
 
 const navigation = [
   { 
-    name: 'Dashboard', 
-    href: (role: string) => `/${role}/dashboard`, 
-    icon: HomeIcon,
-    roles: ['user', 'staff', 'officer']
-  },
-  { 
     name: 'Services', 
-    href: (role: string) => role === 'user' ? '/user/services' : '/officer/services', 
+    href: (role: string) => role === 'Citizens' ? '/citizen/services' : '/officer/services',  // Changed to match database values
     icon: BuildingOfficeIcon,
-    roles: ['user', 'officer']
+    roles: ['Citizens', 'Officer']  // Changed to match database values
   },
   { 
     name: 'My Applications', 
-    href: (role: string) => '/user/applications', 
+    href: (role: string) => '/citizen/applications', 
     icon: DocumentTextIcon,
-    roles: ['user']
+    roles: ['Citizens']  // Changed to match database values
   },
   { 
     name: 'Download History', 
-    href: (role: string) => '/user/downloads', 
+    href: (role: string) => '/citizen/downloads', 
     icon: ArrowDownTrayIcon,
-    roles: ['user']
+    roles: ['Citizens']  // Changed to match database values
   },
   { 
     name: 'Assigned Applications', 
     href: (role: string) => '/staff/applications', 
     icon: ClipboardIcon,
-    roles: ['staff']
+    roles: ['Staff']  // Changed to match database values
   },
   { 
     name: 'All Applications', 
     href: (role: string) => '/officer/applications', 
     icon: ClipboardIcon,
-    roles: ['officer']
+    roles: ['Officer']  // Changed to match database values
   },
   { 
     name: 'Download Management', 
     href: (role: string) => '/officer/downloads', 
     icon: ArrowDownTrayIcon,
-    roles: ['officer']
+    roles: ['Officer']  // Changed to match database values
   },
   { 
     name: 'Users', 
     href: (role: string) => '/officer/users', 
     icon: UsersIcon,
-    roles: ['officer']
+    roles: ['Officer']  // Changed to match database values
   },
   { 
     name: 'Analytics', 
     href: (role: string) => '/officer/analytics', 
     icon: ChartBarIcon,
-    roles: ['officer']
+    roles: ['Officer']  // Changed to match database values
   },
   { 
     name: 'Notifications', 
-    href: (role: string) => `/${role}/notifications`, 
+    href: (role: string) => {
+      // Handle the special case for Citizens role
+      if (role === 'Citizens') {
+        return '/citizen/notifications';
+      }
+      return `/${role.toLowerCase()}/notifications`;
+    }, 
     icon: BellIcon,
-    roles: ['user', 'staff', 'officer']
+    roles: ['Citizens', 'Staff', 'Officer']  // Changed to match database values
   },
   { 
     name: 'Settings', 
-    href: (role: string) => `/${role}/settings`, 
+    href: (role: string) => {
+      // Handle the special case for Citizens role
+      if (role === 'Citizens') {
+        return '/citizen/settings';
+      }
+      return `/${role.toLowerCase()}/settings`;
+    }, 
     icon: CogIcon,
-    roles: ['user', 'staff', 'officer']
+    roles: ['Citizens', 'Staff', 'Officer']  // Changed to match database values
   },
 ]
 
 interface SidebarProps {
-  role: 'user' | 'staff' | 'officer'
+  role: 'Citizens' | 'Staff' | 'Officer'  // Changed to match database values
 }
 
 export default function Sidebar({ role }: SidebarProps) {
@@ -97,18 +102,19 @@ export default function Sidebar({ role }: SidebarProps) {
     <div className="flex flex-col h-full bg-white border-r border-gray-200">
       <div className="flex items-center justify-center h-16 px-4 border-b border-gray-200">
         <Link href="/" className="flex items-center focus:outline-none">
-          {/* Logo container with proper sizing */}
-          <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10">
-            <Image
+          {/* Logo container with proper sizing for all devices */}
+          <div className="flex items-center justify-center w-10 h-10">
+            <img
               src="/navbar-logo.png"
               alt="Digital E-Panchayat Logo"
+              className="object-contain w-full h-full"
               width={40}
               height={40}
-              className="object-contain w-full h-full"
             />
           </div>
-          <span className="ml-2 text-sm sm:text-lg font-heading font-bold text-gray-900 hidden md:block">
-            Digital E-Panchayat
+          {/* Brand name - visible on all devices with responsive text sizing */}
+          <span className="ml-3 text-base font-heading font-bold text-gray-900 whitespace-nowrap overflow-hidden">
+            Digital Gram Panchayat
           </span>
         </Link>
       </div>

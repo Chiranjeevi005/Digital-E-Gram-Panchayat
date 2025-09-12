@@ -12,12 +12,12 @@ export default function Register() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'citizen'
+    role: 'Citizens' // Only allow Citizens registration
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
   }
@@ -56,29 +56,17 @@ export default function Register() {
       }
 
       // Auto sign in after registration for local accounts
-      if (formData.role !== 'admin' && formData.role !== 'staff') {
-        const result = await signIn('credentials', {
-          email: formData.email,
-          password: formData.password,
-          role: formData.role,
-          redirect: false,
-        })
+      const result = await signIn('credentials', {
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+        redirect: false,
+      })
 
-        if (result?.error) {
-          router.push('/auth/signin')
-        } else {
-          // Redirect based on role
-          if (formData.role === 'citizen') {
-            router.push('/')
-          } else if (formData.role === 'staff') {
-            router.push('/staff/dashboard')
-          } else if (formData.role === 'admin') {
-            router.push('/officer/dashboard')
-          }
-        }
-      } else {
-        // For admin/staff, redirect to sign-in page (needs approval)
+      if (result?.error) {
         router.push('/auth/signin')
+      } else {
+        router.push('/')
       }
     } catch (err: any) {
       setError(err.message || 'An unexpected error occurred')
@@ -100,12 +88,10 @@ export default function Register() {
             />
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create an account
+            Create a citizen account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            {formData.role === 'admin' || formData.role === 'staff' 
-              ? 'Note: Admin and Staff accounts require approval' 
-              : 'Register as a citizen to access services'}
+            Register as a citizen to access services
           </p>
         </div>
 
@@ -184,22 +170,8 @@ export default function Register() {
               />
             </div>
             
-            <div>
-              <label htmlFor="role" className="sr-only">
-                Role
-              </label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-              >
-                <option value="citizen">Citizen</option>
-                <option value="staff">Staff</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
+            {/* Hidden input for role to ensure it's always 'Citizens' */}
+            <input type="hidden" name="role" value="Citizens" />
           </div>
 
           <div>

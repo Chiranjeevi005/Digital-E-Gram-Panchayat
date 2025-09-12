@@ -21,7 +21,7 @@ const servicesData = [
       'Place of Birth/Death',
       'Father\'s Name',
       'Mother\'s Name',
-      'Address',
+    'Address',
       'Document Type (Birth/Death)',
       ' supporting documents (Hospital Certificate, Parent ID, etc.)'
     ],
@@ -105,7 +105,7 @@ async function initializeServices() {
         name: 'Admin User',
         email: 'admin@digitalgram.com',
         password: 'placeholder-password', // This would be hashed in a real scenario
-        role: 'admin' // Changed from 'officer' to 'admin'
+        role: 'Officer' // Changed from 'admin' to 'Officer'
       })
       await admin.save()
       console.log('Created admin user with ID:', admin._id)
@@ -116,30 +116,29 @@ async function initializeServices() {
     console.log('Checking existing services...')
     const existingServices = await Service.find({})
     
-    if (existingServices.length > 0) {
-      console.log(`Found ${existingServices.length} existing services. Updating services with category and download fee information...`)
+    // Create a map of existing services by name for easy lookup
+    const existingServiceMap = new Map(existingServices.map(service => [service.name, service]))
+    
+    console.log(`Found ${existingServices.length} existing services.`)
+    
+    // Process each service in our data
+    for (const serviceData of servicesData) {
+      const existingService = existingServiceMap.get(serviceData.name)
       
-      // Update existing services with category and download fee information
-      for (const service of existingServices) {
-        // Find matching service in our data
-        const matchingService = servicesData.find(s => s.name === service.name)
-        
-        if (matchingService) {
-          service.category = matchingService.category
-          service.instantDownloadFees = matchingService.instantDownloadFees
-          service.processingTime = matchingService.processingTime
-          await service.save()
-          console.log(`Updated service: ${service.name}`)
-        }
-      }
-    } else {
-      console.log('No existing services found. Creating new services...')
-      
-      // Create new services
-      for (const serviceData of servicesData) {
+      if (existingService) {
+        // Update existing service with category and download fee information
+        console.log(`Updating existing service: ${serviceData.name}`)
+        existingService.category = serviceData.category
+        existingService.instantDownloadFees = serviceData.instantDownloadFees
+        existingService.processingTime = serviceData.processingTime
+        await existingService.save()
+        console.log(`Updated service: ${existingService.name}`)
+      } else {
+        // Create new service
+        console.log(`Creating new service: ${serviceData.name}`)
         const service = new Service({
           ...serviceData,
-          createdBy: admin._id // Changed from officer._id to admin._id
+          createdBy: admin._id
         })
         await service.save()
         console.log(`Created service: ${service.name}`)

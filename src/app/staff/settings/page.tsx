@@ -67,9 +67,9 @@ export default function StaffSettings() {
 
     if (status === 'unauthenticated') {
       router.push('/auth/signin')
-    } else if (session?.user && 'role' in session.user && session.user.role && session.user.role !== 'staff') {
-      // Redirect if not staff
-      router.push(`/${session.user.role}/dashboard`)
+    } else if (session?.user && 'role' in session.user && session.user.role && session.user.role !== 'Staff') {
+      // Redirect if not Staff (note: role is 'Staff' not 'staff')
+      router.push(`/${session.user.role.toLowerCase()}/dashboard`)
     } else if (session?.user) {
       // Set initial profile data
       setProfile({
@@ -211,7 +211,7 @@ export default function StaffSettings() {
                 </button>
               </div>
               <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
-                <Sidebar role="staff" />
+                <Sidebar role="Staff" />
               </div>
             </div>
           </div>
@@ -220,7 +220,7 @@ export default function StaffSettings() {
       
       <div className="flex flex-1">
         <div className="hidden md:block w-64">
-          <Sidebar role="staff" />
+          <Sidebar role="Staff" />
         </div>
         
         <main className="flex-1 p-6">

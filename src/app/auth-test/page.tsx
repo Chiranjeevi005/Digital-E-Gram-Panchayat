@@ -4,8 +4,8 @@ import { useState } from 'react'
 
 export default function AuthTest() {
   const [credentials, setCredentials] = useState({
-    email: 'john@example.com',
-    password: 'password123',
+    email: '',
+    password: '',
     role: 'user'
   })
   const [result, setResult] = useState<any>(null)
@@ -120,7 +120,7 @@ export default function AuthTest() {
                 <div className="mt-8 p-4 bg-gray-50 rounded">
                   <h3 className="text-md font-medium text-gray-900">Result:</h3>
                   <pre className="mt-2 text-sm text-gray-600 overflow-auto max-h-60">
-                    {JSON.stringify(result, null, 2)}
+                    {result.success ? 'Authentication test completed successfully' : `Error: ${result.error || 'Authentication failed'}`}
                   </pre>
                 </div>
               )}
@@ -137,13 +137,7 @@ export default function AuthTest() {
             </div>
             <div className="ml-3">
               <p className="text-sm text-yellow-700">
-                <strong>Test Credentials:</strong>
-                <br />
-                Citizen: john@example.com / password123
-                <br />
-                Staff: jane@example.com / password123
-                <br />
-                Officer: bob@example.com / password123
+                This is a test page for authentication functionality. Please enter valid credentials to test.
               </p>
             </div>
           </div>

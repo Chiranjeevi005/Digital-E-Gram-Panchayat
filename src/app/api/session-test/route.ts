@@ -7,11 +7,11 @@ export async function GET(_request: NextRequest) {
     console.log('Session test route called')
     
     // Get session
-    const session = await getServerSession(authOptions)
+    const session: any = await getServerSession(authOptions)
     
     console.log('Session from server:', session)
     
-    if (!session) {
+    if (!session || !session.user) {
       return NextResponse.json({
         success: false,
         message: 'No session found',

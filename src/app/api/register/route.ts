@@ -4,13 +4,14 @@ import User from '@/models/User'
 import { z } from 'zod'
 import logger from '@/lib/logger'
 import { validatePassword } from '@/lib/passwordValidator'
+import bcrypt from 'bcrypt'
 
 // Validation schema
 const registerSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   email: z.string().email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
-  role: z.enum(['admin', 'staff', 'citizen']).default('citizen')
+  role: z.enum(['Citizens']).default('Citizens') // Only allow 'Citizens' role for registration
 })
 
 export async function POST(request: NextRequest) {
@@ -33,15 +34,13 @@ export async function POST(request: NextRequest) {
     
     const { name, email, password, role } = validatedData.data
     
-    // Validate password strength for admin and staff roles
-    if (role === 'admin' || role === 'staff') {
-      const passwordValidation = validatePassword(password)
-      if (!passwordValidation.isValid) {
-        return NextResponse.json(
-          { error: 'Password does not meet requirements', details: passwordValidation.errors },
-          { status: 400 }
-        )
-      }
+    // Validate password strength
+    const passwordValidation = validatePassword(password)
+    if (!passwordValidation.isValid) {
+      return NextResponse.json(
+        { error: 'Password does not meet requirements', details: passwordValidation.errors },
+        { status: 400 }
+      )
     }
     
     // Check if user already exists
@@ -51,28 +50,6 @@ export async function POST(request: NextRequest) {
         { error: 'User with this email already exists' },
         { status: 400 }
       )
-    }
-    
-    // Enforce role-based account creation limits
-    if (role !== 'citizen') {
-      // For staff and admin roles, check existing accounts
-      const existingAccounts = await User.countDocuments({ role })
-      
-      // Admins: limited to 1 account
-      if (role === 'admin' && existingAccounts >= 1) {
-        return NextResponse.json(
-          { error: 'Only one admin account is allowed' },
-          { status: 400 }
-        )
-      }
-      
-      // Staff: limited to 2 accounts
-      if (role === 'staff' && existingAccounts >= 2) {
-        return NextResponse.json(
-          { error: 'Maximum of 2 staff accounts allowed' },
-          { status: 400 }
-        )
-      }
     }
     
     // Create user - only local provider accounts need passwords

@@ -1,6 +1,7 @@
 import User from '@/models/User'
 import Notification from '@/models/Notification'
 import { Types } from 'mongoose'
+import { emitToUser } from '@/lib/socketService'
 
 // Types for notification preferences
 interface NotificationPreferences {
@@ -56,6 +57,16 @@ export async function sendNotification(notificationData: NotificationData) {
     })
     
     await notification.save()
+    
+    // Emit real-time notification via Socket.IO
+    emitToUser(notificationData.userId, 'notification', {
+      id: notification._id.toString(),
+      title: notificationData.title,
+      message: notificationData.message,
+      type: notificationData.type,
+      timestamp: new Date(),
+      read: false
+    })
     
     // Send email notification if enabled
     if (preferences.email) {

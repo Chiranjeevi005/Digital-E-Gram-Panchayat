@@ -88,7 +88,7 @@ export default function DownloadManagement() {
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <div className="flex-grow flex">
-          <Sidebar role="officer" />
+          <Sidebar role="Officer" />
           <div className="flex-grow max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 w-full">
             <div className="px-4 py-6 sm:px-0">
               <div className="mb-8">
@@ -107,7 +107,7 @@ export default function DownloadManagement() {
       <Navbar />
       
       <div className="flex-grow flex">
-        <Sidebar role="officer" />
+        <Sidebar role="Officer" />
         
         <main className="flex-grow max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 w-full">
           <div className="px-4 py-6 sm:px-0">

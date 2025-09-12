@@ -6,7 +6,7 @@ export interface IUser extends Document {
   name: string
   email: string
   password: string | null
-  role: 'admin' | 'staff' | 'citizen'
+  role: 'Citizens' | 'Staff' | 'Officer'  // Exact role names as specified
   provider: 'local' | 'google'
   emailVerified?: Date | null
   status: 'active' | 'inactive' | 'suspended'
@@ -51,8 +51,8 @@ const UserSchema: Schema = new Schema(
     },
     role: {
       type: String,
-      enum: ['admin', 'staff', 'citizen'],
-      default: 'citizen',
+      enum: ['Citizens', 'Staff', 'Officer'],  // Exact role names as specified
+      default: 'Citizens',
     },
     provider: {
       type: String,

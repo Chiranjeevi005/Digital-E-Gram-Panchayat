@@ -18,7 +18,7 @@ All dependencies are listed in [package.json](package.json)
 
 ## ⚙️ Working Features
 
-### 👤 User
+### 👤 Citizens
 - Register / Login
 - Search services
 - Apply for a service (with form data)
@@ -31,7 +31,7 @@ All dependencies are listed in [package.json](package.json)
 - View assigned applications
 - Update application status (in progress → approved/rejected)
 
-### 🏛 Officer/Admin
+### 🏛 Officer
 - Login
 - Create / Update / Delete services
 - Approve / Reject applications
@@ -39,7 +39,7 @@ All dependencies are listed in [package.json](package.json)
 - Maintain audit logs
 
 ### 🔐 Cross-Cutting
-- Role-based access control (User / Staff / Officer)
+- Role-based access control (Citizens / Staff / Officer)
 - Input validation (Zod)
 - Logging every action (stored in logs collection + console)
 - Secure password storage (bcrypt)
@@ -96,8 +96,6 @@ Visit 👉 http://localhost:3000
    MONGODB_URI=your_production_mongodb_uri_here
    NEXTAUTH_SECRET=your_production_nextauth_secret_here
    NEXTAUTH_URL=https://your-vercel-app.vercel.app
-   GOOGLE_CLIENT_ID=your_production_google_client_id_here
-   GOOGLE_CLIENT_SECRET=your_production_google_client_secret_here
    CLOUDINARY_CLOUD_NAME=your_production_cloudinary_cloud_name_here
    CLOUDINARY_API_KEY=your_production_cloudinary_api_key_here
    CLOUDINARY_API_SECRET=your_production_cloudinary_api_secret_here
@@ -181,3 +179,18 @@ The system now supports generating professional documents from approved applicat
 - **Content**: Includes all application data in a well-formatted layout
 
 For more details, see [DOCUMENT_GENERATION.md](DOCUMENT_GENERATION.md)
+
+## Login Credentials
+
+For security reasons, test credentials have been removed from this document. To set up test accounts:
+
+1. Run the initialization script:
+   ```bash
+   npm run init-db
+   ```
+
+2. Or manually create test accounts through the registration page.
+
+**Important**: When logging in, make sure to select the correct role from the dropdown menu. The authentication system requires an exact match of email, password, AND role.
+
+Note: These credentials are set up by the `initializeRequiredAccounts.ts` script and are the only authorized accounts for the application.
