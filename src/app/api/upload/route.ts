@@ -13,6 +13,16 @@ type SessionUser = {
   image?: string | null;
 }
 
+// Function to sanitize filename for Cloudinary
+function sanitizeFilename(filename: string): string {
+  // Remove or replace special characters that are not allowed in Cloudinary public_ids
+  return filename
+    .replace(/[^a-zA-Z0-9._-]/g, '_') // Replace special characters with underscores
+    .replace(/_{2,}/g, '_') // Replace multiple underscores with single underscore
+    .replace(/^_|_$/g, '') // Remove leading/trailing underscores
+    .substring(0, 100); // Limit length to prevent issues
+}
+
 export async function POST(request: NextRequest) {
   try {
     await dbConnect()
@@ -75,11 +85,12 @@ export async function POST(request: NextRequest) {
     
     // Upload to Cloudinary
     const folder = `digital_e_panchayat/applications/${applicationId}`
-    const fileName = `${fieldName}_${Date.now()}_${file.name}`
+    // Sanitize the filename to ensure it's valid for Cloudinary
+    const sanitizedFileName = sanitizeFilename(`${fieldName}_${Date.now()}_${file.name}`)
     
     try {
       console.log(`Uploading file: ${file.name} (${file.type}) with size ${file.size} bytes to folder: ${folder}`);
-      const uploadResult = await uploadFileToCloudinary(buffer, fileName, folder)
+      const uploadResult = await uploadFileToCloudinary(buffer, sanitizedFileName, folder)
       console.log('Upload successful:', uploadResult.secure_url)
       
       // Return the file URL and public ID

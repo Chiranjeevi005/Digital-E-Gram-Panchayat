@@ -35,6 +35,20 @@ export function validateFile(fileBuffer: Buffer, fileName: string, mimeType: str
 }
 
 /**
+ * Sanitize filename for Cloudinary
+ * @param filename - The original filename
+ * @returns Sanitized filename
+ */
+function sanitizeFilename(filename: string): string {
+  // Remove or replace special characters that are not allowed in Cloudinary public_ids
+  return filename
+    .replace(/[^a-zA-Z0-9._-]/g, '_') // Replace special characters with underscores
+    .replace(/_{2,}/g, '_') // Replace multiple underscores with single underscore
+    .replace(/^_|_$/g, '') // Remove leading/trailing underscores
+    .substring(0, 100); // Limit length to prevent issues
+}
+
+/**
  * Upload a file to Cloudinary
  * @param fileBuffer - The file buffer to upload
  * @param fileName - The original file name
@@ -54,6 +68,9 @@ export async function uploadFileToCloudinary(
   if (!cloudName || !apiKey || !apiSecret) {
     throw new Error('Cloudinary is not properly configured. Please check environment variables.')
   }
+  
+  // Sanitize the filename
+  const sanitizedFileName = sanitizeFilename(fileName);
   
   // Configure Cloudinary on each call to ensure fresh configuration
   cloudinary.config({
@@ -77,7 +94,7 @@ export async function uploadFileToCloudinary(
       `data:${getFileMimeType(fileName)};base64,${fileBuffer.toString('base64')}`,
       {
         folder: folder,
-        public_id: fileName,
+        public_id: sanitizedFileName,
         resource_type: resourceType, // Use the determined resource type
         overwrite: false,
         unique_filename: true,
