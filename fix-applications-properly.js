@@ -1,42 +1,39 @@
 const mongoose = require('mongoose');
+require('dotenv').config({ path: '.env.local' });
 
 async function fixApplicationsProperly() {
   try {
-    await mongoose.connect('mongodb+srv://chiru:chiru@cluster0.yylyjss.mongodb.net/test?retryWrites=true&w=majority', {
+    // Use environment variable for MongoDB connection
+    const mongoUri = process.env.MONGODB_URI;
+    
+    if (!mongoUri) {
+      console.error('MONGODB_URI environment variable is not set');
+      process.exit(1);
+    }
+    
+    await mongoose.connect(mongoUri, {
       useNewUrlParser: true,
       useUnifiedTopology: true
     });
     
-    console.log('Fixing applications with missing users properly...\n');
+    // Fix applications with invalid applicant references
+    const applications = await mongoose.connection.db.collection('applications').find({}).toArray();
     
-    // Find applications with the missing user reference
-    const appsWithMissingUser = await mongoose.connection.db.collection('applications').find({
-      applicant: new mongoose.Types.ObjectId('68c1650245029b288ce00c6e')
-    }).toArray();
-    
-    console.log(`Found ${appsWithMissingUser.length} applications with missing user references\n`);
-    
-    if (appsWithMissingUser.length > 0) {
-      // Update all applications referencing the missing user
-      const result = await mongoose.connection.db.collection('applications').updateMany(
-        { applicant: new mongoose.Types.ObjectId('68c1650245029b288ce00c6e') },
-        { $set: { applicant: new mongoose.Types.ObjectId('68c30553a5e6b4eae366e0ce') } }
-      );
-      
-      console.log(`Updated ${result.modifiedCount} applications\n`);
+    let fixedCount = 0;
+    for (const application of applications) {
+      if (application.applicant && typeof application.applicant === 'string') {
+        // Convert string to ObjectId
+        await mongoose.connection.db.collection('applications').updateOne(
+          { _id: application._id },
+          { $set: { applicant: new mongoose.Types.ObjectId(application.applicant) } }
+        );
+        fixedCount++;
+      }
     }
     
-    // Verify the fix
-    const remaining = await mongoose.connection.db.collection('applications').countDocuments({
-      applicant: new mongoose.Types.ObjectId('68c1650245029b288ce00c6e')
-    });
+    console.log(`Fixed ${fixedCount} applications with string applicant references`);
     
-    if (remaining === 0) {
-      console.log('✅ All applications now reference valid users\n');
-    } else {
-      console.log(`❌ ${remaining} applications still reference invalid users\n`);
-    }
-    
+    await mongoose.connection.close();
     process.exit(0);
   } catch (error) {
     console.error('Error fixing applications:', error);

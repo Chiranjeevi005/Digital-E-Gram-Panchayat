@@ -1,34 +1,33 @@
 const mongoose = require('mongoose');
+require('dotenv').config({ path: '.env.local' });
 
 async function fixMissingUsers() {
   try {
-    await mongoose.connect('mongodb+srv://chiru:chiru@cluster0.yylyjss.mongodb.net/test?retryWrites=true&w=majority', {
+    // Use environment variable for MongoDB connection
+    const mongoUri = process.env.MONGODB_URI;
+    
+    if (!mongoUri) {
+      console.error('MONGODB_URI environment variable is not set');
+      process.exit(1);
+    }
+    
+    await mongoose.connect(mongoUri, {
       useNewUrlParser: true,
       useUnifiedTopology: true
     });
     
-    // Find all applications referencing the missing user
-    const appsWithMissingUser = await mongoose.connection.db.collection('applications').find({
-      applicant: '68c1650245029b288ce00c6e'
-    }).toArray();
+    // Fix applications with missing user references
+    const result = await mongoose.connection.db.collection('applications').updateMany(
+      { user: { $exists: false } },
+      { $set: { user: null } }
+    );
     
-    console.log(`Found ${appsWithMissingUser.length} applications with missing user`);
+    console.log(`Fixed ${result.modifiedCount} applications with missing user references`);
     
-    if (appsWithMissingUser.length > 0) {
-      // Update all applications to reference an existing user
-      const result = await mongoose.connection.db.collection('applications').updateMany(
-        { applicant: '68c1650245029b288ce00c6e' },
-        { $set: { applicant: new mongoose.Types.ObjectId('68c30553a5e6b4eae366e0ce') } }
-      );
-      
-      console.log('Applications updated:', result);
-    } else {
-      console.log('No applications with missing users found');
-    }
-    
+    await mongoose.connection.close();
     process.exit(0);
   } catch (error) {
-    console.error('Error fixing missing users:', error);
+    console.error('Error fixing applications:', error);
     process.exit(1);
   }
 }

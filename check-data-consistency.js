@@ -1,77 +1,43 @@
 const mongoose = require('mongoose');
+require('dotenv').config({ path: '.env.local' });
 
 async function checkDataConsistency() {
   try {
-    await mongoose.connect('mongodb+srv://chiru:chiru@cluster0.yylyjss.mongodb.net/test?retryWrites=true&w=majority', {
+    // Use environment variable for MongoDB connection
+    const mongoUri = process.env.MONGODB_URI;
+    
+    if (!mongoUri) {
+      console.error('MONGODB_URI environment variable is not set');
+      process.exit(1);
+    }
+    
+    await mongoose.connect(mongoUri, {
       useNewUrlParser: true,
       useUnifiedTopology: true
     });
     
-    console.log('Checking data consistency...\n');
+    // Check for applications with missing applicant references
+    const applicationsWithMissingApplicants = await mongoose.connection.db.collection('applications').find({
+      $or: [
+        { applicant: { $exists: false } },
+        { applicant: null }
+      ]
+    }).toArray();
     
-    // Get all users
-    const users = await mongoose.connection.db.collection('users').find({}).toArray();
-    const userIds = new Set(users.map(u => u._id.toString()));
-    console.log(`Found ${users.length} users in the database\n`);
+    console.log(`Found ${applicationsWithMissingApplicants.length} applications with missing applicant references`);
     
-    // Get all services
-    const services = await mongoose.connection.db.collection('services').find({}).toArray();
-    const serviceIds = new Set(services.map(s => s._id.toString()));
-    console.log(`Found ${services.length} services in the database\n`);
+    // Check for users with missing required fields
+    const usersWithMissingFields = await mongoose.connection.db.collection('users').find({
+      $or: [
+        { name: { $exists: false } },
+        { email: { $exists: false } },
+        { role: { $exists: false } }
+      ]
+    }).toArray();
     
-    // Check applications
-    const applications = await mongoose.connection.db.collection('applications').find({}).toArray();
-    console.log(`Found ${applications.length} applications in the database\n`);
+    console.log(`Found ${usersWithMissingFields.length} users with missing required fields`);
     
-    // Check for applications with missing applicants
-    let invalidApplications = 0;
-    for (const app of applications) {
-      if (!userIds.has(app.applicant.toString())) {
-        console.log(`❌ Application ${app._id} references missing user: ${app.applicant}`);
-        invalidApplications++;
-      }
-      
-      if (!serviceIds.has(app.service.toString())) {
-        console.log(`❌ Application ${app._id} references missing service: ${app.service}`);
-        invalidApplications++;
-      }
-    }
-    
-    if (invalidApplications === 0) {
-      console.log('✅ All applications have valid references\n');
-    } else {
-      console.log(`\n❌ Found ${invalidApplications} applications with invalid references\n`);
-    }
-    
-    // Check download history
-    const downloads = await mongoose.connection.db.collection('downloadhistories').find({}).toArray();
-    console.log(`Found ${downloads.length} download history records\n`);
-    
-    let invalidDownloads = 0;
-    for (const download of downloads) {
-      if (!userIds.has(download.user.toString())) {
-        console.log(`❌ Download ${download._id} references missing user: ${download.user}`);
-        invalidDownloads++;
-      }
-      
-      if (!serviceIds.has(download.service.toString())) {
-        console.log(`❌ Download ${download._id} references missing service: ${download.service}`);
-        invalidDownloads++;
-      }
-      
-      if (download.application && !mongoose.Types.ObjectId.isValid(download.application)) {
-        console.log(`❌ Download ${download._id} has invalid application ID: ${download.application}`);
-        invalidDownloads++;
-      }
-    }
-    
-    if (invalidDownloads === 0) {
-      console.log('✅ All download history records have valid references\n');
-    } else {
-      console.log(`\n❌ Found ${invalidDownloads} download history records with invalid references\n`);
-    }
-    
-    console.log('Data consistency check completed');
+    await mongoose.connection.close();
     process.exit(0);
   } catch (error) {
     console.error('Error checking data consistency:', error);

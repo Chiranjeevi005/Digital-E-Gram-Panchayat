@@ -1,8 +1,17 @@
 const mongoose = require('mongoose');
+require('dotenv').config({ path: '.env.local' });
 
 async function updateApplication() {
   try {
-    await mongoose.connect('mongodb+srv://chiru:chiru@cluster0.yylyjss.mongodb.net/test?retryWrites=true&w=majority', {
+    // Use environment variable for MongoDB connection
+    const mongoUri = process.env.MONGODB_URI;
+    
+    if (!mongoUri) {
+      console.error('MONGODB_URI environment variable is not set');
+      process.exit(1);
+    }
+    
+    await mongoose.connect(mongoUri, {
       useNewUrlParser: true,
       useUnifiedTopology: true
     });

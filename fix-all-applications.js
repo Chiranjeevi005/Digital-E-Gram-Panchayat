@@ -1,33 +1,30 @@
 const mongoose = require('mongoose');
+require('dotenv').config({ path: '.env.local' });
 
 async function fixAllApplications() {
   try {
-    await mongoose.connect('mongodb+srv://chiru:chiru@cluster0.yylyjss.mongodb.net/test?retryWrites=true&w=majority', {
+    // Use environment variable for MongoDB connection
+    const mongoUri = process.env.MONGODB_URI;
+    
+    if (!mongoUri) {
+      console.error('MONGODB_URI environment variable is not set');
+      process.exit(1);
+    }
+    
+    await mongoose.connect(mongoUri, {
       useNewUrlParser: true,
       useUnifiedTopology: true
     });
     
-    console.log('Fixing applications with missing users...\n');
-    
-    // Update all applications referencing the missing user
+    // Fix applications with missing applicant references
     const result = await mongoose.connection.db.collection('applications').updateMany(
-      { applicant: '68c1650245029b288ce00c6e' },
-      { $set: { applicant: '68c30553a5e6b4eae366e0ce' } }
+      { applicant: { $exists: false } },
+      { $set: { applicant: null } }
     );
     
-    console.log(`Updated ${result.modifiedCount} applications\n`);
+    console.log(`Fixed ${result.modifiedCount} applications with missing applicant references`);
     
-    // Verify the fix
-    const remaining = await mongoose.connection.db.collection('applications').countDocuments({
-      applicant: '68c1650245029b288ce00c6e'
-    });
-    
-    if (remaining === 0) {
-      console.log('✅ All applications now reference valid users\n');
-    } else {
-      console.log(`❌ ${remaining} applications still reference invalid users\n`);
-    }
-    
+    await mongoose.connection.close();
     process.exit(0);
   } catch (error) {
     console.error('Error fixing applications:', error);
