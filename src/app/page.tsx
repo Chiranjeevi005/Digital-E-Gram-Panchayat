@@ -144,7 +144,7 @@ export default function Home() {
         {/* Banner image with 80% blur effect */}
         <div className="absolute inset-0 w-full h-full">
           <img
-            src="https://res.cloudinary.com/ds2qnwvrk/image/upload/v1757176917/Digital_E-Gram_Banner_rhmdud.png"
+            src="/home-banner.jpg"
             alt="Digital E-Gram Panchayat"
             className="w-full h-full object-cover blur-[2px]"
           />
