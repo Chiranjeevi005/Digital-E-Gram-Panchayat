@@ -1,4 +1,5 @@
 const https = require('https');
+const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const url = require('url');
@@ -16,9 +17,9 @@ const handle = app.getRequestHandler();
 app.prepare().then(() => {
   const server = express();
   
-  // Only enforce HTTPS in production and not on Vercel
-  // Vercel handles HTTPS automatically, so we skip it there
-  if (process.env.NODE_ENV === 'production' && !process.env.VERCEL) {
+  // Only enforce HTTPS in production and not on Vercel or Render
+  // Vercel and Render handle HTTPS automatically, so we skip it there
+  if (process.env.NODE_ENV === 'production' && !process.env.VERCEL && !process.env.RENDER) {
     server.use(expressSSLify.HTTPS({ trustProtoHeader: true }));
   }
 
@@ -28,12 +29,12 @@ app.prepare().then(() => {
     handle(req, res, parsedUrl);
   });
 
-  // HTTPS configuration
-  const httpsOptions = {
-    key: fs.readFileSync(path.join(__dirname, 'cert', 'server.key')),
-    cert: fs.readFileSync(path.join(__dirname, 'cert', 'server.cert'))
-  };
-
+  // Check if we're running on Render (production environment without local certs)
+  const isRender = process.env.RENDER === 'true' || process.env.NODE_ENV === 'production';
+  
+  // Start server on port 3000
+  const port = process.env.PORT || 3000;
+  
   // Function to check if port is in use and kill the process if needed
   const checkAndKillPort = (port) => {
     return new Promise((resolve) => {
@@ -67,29 +68,84 @@ app.prepare().then(() => {
     });
   };
 
-  // Start server on port 3000 with HTTPS
-  const port = 3000;
-  
-  checkAndKillPort(port).then(() => {
-    const httpsServer = https.createServer(httpsOptions, server);
-    
-    // Initialize Socket.IO
-    const { initSocketIO } = require('./src/lib/socketService');
-    initSocketIO(httpsServer);
-    
-    httpsServer.listen(port, (err) => {
-      if (err) {
-        console.error('Failed to start server:', err);
+  // For Render or other production environments, use HTTP
+  if (isRender) {
+    checkAndKillPort(port).then(() => {
+      // Initialize Socket.IO with HTTP server for Render
+      const httpServer = http.createServer(server);
+      const { initSocketIO } = require('./src/lib/socketService');
+      initSocketIO(httpServer);
+      
+      httpServer.listen(port, (err) => {
+        if (err) {
+          console.error('Failed to start server:', err);
+          process.exit(1);
+        } else {
+          console.log(`> Ready on http://localhost:${port}`);
+        }
+      });
+      
+      // Handle the error event separately
+      httpServer.on('error', (err) => {
+        console.error('Server error:', err);
         process.exit(1);
-      } else {
-        console.log(`> Ready on https://localhost:${port}`);
-      }
+      });
     });
-    
-    // Handle the error event separately
-    httpsServer.on('error', (err) => {
-      console.error('Server error:', err);
-      process.exit(1);
-    });
-  });
+  } else {
+    // For local development, use HTTPS with local certificates
+    try {
+      const httpsOptions = {
+        key: fs.readFileSync(path.join(__dirname, 'cert', 'server.key')),
+        cert: fs.readFileSync(path.join(__dirname, 'cert', 'server.cert'))
+      };
+      
+      checkAndKillPort(port).then(() => {
+        const httpsServer = https.createServer(httpsOptions, server);
+        
+        // Initialize Socket.IO
+        const { initSocketIO } = require('./src/lib/socketService');
+        initSocketIO(httpsServer);
+        
+        httpsServer.listen(port, (err) => {
+          if (err) {
+            console.error('Failed to start server:', err);
+            process.exit(1);
+          } else {
+            console.log(`> Ready on https://localhost:${port}`);
+          }
+        });
+        
+        // Handle the error event separately
+        httpsServer.on('error', (err) => {
+          console.error('Server error:', err);
+          process.exit(1);
+        });
+      });
+    } catch (error) {
+      console.error('Failed to load SSL certificates for HTTPS. Falling back to HTTP.');
+      console.error('Error:', error.message);
+      
+      checkAndKillPort(port).then(() => {
+        // Initialize Socket.IO with HTTP server as fallback
+        const httpServer = http.createServer(server);
+        const { initSocketIO } = require('./src/lib/socketService');
+        initSocketIO(httpServer);
+        
+        httpServer.listen(port, (err) => {
+          if (err) {
+            console.error('Failed to start server:', err);
+            process.exit(1);
+          } else {
+            console.log(`> Ready on http://localhost:${port} (fallback due to missing SSL certificates)`);
+          }
+        });
+        
+        // Handle the error event separately
+        httpServer.on('error', (err) => {
+          console.error('Server error:', err);
+          process.exit(1);
+        });
+      });
+    }
+  }
 })

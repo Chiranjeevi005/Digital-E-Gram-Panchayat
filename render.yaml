@@ -7,12 +7,14 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: RENDER
+        value: true
       - key: MONGODB_URI
         sync: false
       - key: NEXTAUTH_SECRET
         sync: false
       - key: NEXTAUTH_URL
-        value: https://your-app-name.vercel.app
+        value: https://your-app-name.onrender.com
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
       - key: CLOUDINARY_API_KEY
