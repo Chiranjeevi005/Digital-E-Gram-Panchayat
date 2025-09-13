@@ -95,7 +95,7 @@ Visit 👉 https://digital-e-gram-panchayat-ao60.onrender.com
    ```
    MONGODB_URI=your_production_mongodb_uri_here
    NEXTAUTH_SECRET=your_production_nextauth_secret_here
-   NEXTAUTH_URL=https://your-vercel-app.vercel.app
+   NEXTAUTH_URL=https://digital-e-gram-panchayat-chi.vercel.app
    CLOUDINARY_CLOUD_NAME=your_production_cloudinary_cloud_name_here
    CLOUDINARY_API_KEY=your_production_cloudinary_api_key_here
    CLOUDINARY_API_SECRET=your_production_cloudinary_api_secret_here

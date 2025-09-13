@@ -236,7 +236,7 @@ The system provides a digital platform for citizens to access government service
 ```
 # NextAuth Configuration
 NEXTAUTH_SECRET=your_strong_nextauth_secret
-NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_URL=https://digital-e-gram-panchayat-ao60.onrender.com
 
 # Google OAuth (for citizen Google Sign-In)
 GOOGLE_CLIENT_ID=your_google_client_id

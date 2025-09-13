@@ -5,7 +5,7 @@ import type { NextRequest } from 'next/server'
 // Define CORS allowlist - in production, replace with your actual frontend domain
 const CORS_ALLOWLIST = [
   'http://localhost:3000',
-  'https://your-vercel-app.vercel.app',
+  'https://digital-e-gram-panchayat-chi.vercel.app',
   'https://your-api-domain.onrender.com',
   'https://digital-e-gram-panchayat-ao60.onrender.com'
 ]
