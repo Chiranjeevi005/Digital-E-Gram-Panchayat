@@ -2,23 +2,16 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useSession } from 'next-auth/react'
+import Link from 'next/link'
+import { BellIcon } from '@heroicons/react/24/outline'
 import { useRouter } from 'next/navigation'
-import { Transition } from '@headlessui/react'
-import { 
-  BellIcon, 
-  XMarkIcon, 
-  CheckCircleIcon, 
-  ExclamationTriangleIcon, 
-  InformationCircleIcon 
-} from '@heroicons/react/24/outline'
-import { useSocket, NotificationData } from '@/lib/useSocket'
 
-interface Notification {
+interface NotificationType {
   _id: string
   title: string
   message: string
-  type: 'info' | 'success' | 'warning' | 'error'
-  isRead: boolean
+  type: 'info' | 'warning' | 'error' | 'success'
+  read: boolean
   createdAt: string
 }
 
@@ -26,254 +19,179 @@ export default function NotificationDropdown() {
   const { data: session } = useSession()
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
-  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [notifications, setNotifications] = useState<NotificationType[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  const autoCloseTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const newlyOpenedRef = useRef(false)
 
-  // Handle real-time notifications
-  const handleNotification = (data: NotificationData) => {
-    // Add the new notification to the top of the list
-    const newNotification: Notification = {
-      _id: data.id,
-      title: data.title,
-      message: data.message,
-      type: data.type,
-      isRead: data.read,
-      createdAt: data.timestamp.toString()
-    }
-    
-    setNotifications(prev => [newNotification, ...prev])
-    setUnreadCount(prev => prev + (data.read ? 0 : 1))
-    
-    // Automatically open the dropdown when a new unread notification arrives
-    if (!data.read) {
-      setIsOpen(true)
-      newlyOpenedRef.current = true
-      
-      // Clear any existing timeout
-      if (autoCloseTimeoutRef.current) {
-        clearTimeout(autoCloseTimeoutRef.current)
+  // Get user role for API endpoint
+  const getUserRole = () => {
+    if (!session?.user) return null
+    return (session.user as any).role?.toLowerCase() || null
+  }
+
+  // Fetch notifications
+  const fetchNotifications = async () => {
+    try {
+      const role = getUserRole()
+      if (!role) return
+
+      const response = await fetch(`/api/notifications?role=${role}`)
+      if (response.ok) {
+        const data = await response.json()
+        setNotifications(data.notifications || [])
+        setUnreadCount(data.unreadCount || 0)
       }
-      
-      // Set timeout to close the dropdown after 7 seconds
-      autoCloseTimeoutRef.current = setTimeout(() => {
-        setIsOpen(false)
-        newlyOpenedRef.current = false
-      }, 7000)
+    } catch (error) {
+      console.error('Error fetching notifications:', error)
     }
   }
 
-  // Initialize Socket.IO connection
-  useSocket(session?.user?.id || null, handleNotification)
-
-  // Fetch notifications
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      if (!session?.user) return
-      
-      try {
-        const response = await fetch('/api/notifications')
-        if (response.ok) {
-          const data = await response.json()
-          setNotifications(data.slice(0, 5)) // Limit to 5 latest notifications
-          setUnreadCount(data.filter((n: Notification) => !n.isRead).length)
-        }
-      } catch (error) {
-        console.error('Error fetching notifications:', error)
-      }
-    }
-
-    fetchNotifications()
-  }, [session])
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
-        newlyOpenedRef.current = false
-        
-        // Clear timeout when closing by clicking outside
-        if (autoCloseTimeoutRef.current) {
-          clearTimeout(autoCloseTimeoutRef.current)
-        }
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-      // Clear timeout on unmount
-      if (autoCloseTimeoutRef.current) {
-        clearTimeout(autoCloseTimeoutRef.current)
-      }
-    }
-  }, [])
-
   // Mark notification as read
-  const markAsRead = async (id: string) => {
+  const markAsRead = async (notificationId: string) => {
     try {
-      const response = await fetch(`/api/notifications/${id}/read`, {
-        method: 'POST'
+      const response = await fetch(`/api/notifications/${notificationId}/read`, {
+        method: 'PUT',
       })
       
       if (response.ok) {
-        setNotifications(notifications.map(n => 
-          n._id === id ? { ...n, isRead: true } : n
-        ))
-        setUnreadCount(unreadCount - 1)
-        // Close dropdown instantly when marking as read
+        setNotifications(prev => 
+          prev.map(notification => 
+            notification._id === notificationId 
+              ? { ...notification, read: true } 
+              : notification
+          )
+        )
+        setUnreadCount(prev => Math.max(0, prev - 1))
         setIsOpen(false)
-        newlyOpenedRef.current = false
-        
-        // Clear any existing timeout
-        if (autoCloseTimeoutRef.current) {
-          clearTimeout(autoCloseTimeoutRef.current)
-        }
       }
     } catch (error) {
       console.error('Error marking notification as read:', error)
     }
   }
 
-  // Get user role for notification path
-  const getUserNotificationsPath = () => {
-    if (!session?.user) return '/'
-    const role = (session.user as any).role
-    switch (role) {
-      case 'citizen': 
-      case 'user': 
-      case 'Citizens':  // Add the new role name
-        return '/citizen/notifications'
-      case 'staff': 
-      case 'Staff':  // Add the new role name
-        return '/staff/notifications'
-      case 'admin': 
-      case 'officer':
-      case 'Officer':  // Add the new role name
-        return '/officer/notifications'
-      default: 
-        return '/'
+  // Mark all as read
+  const markAllAsRead = async () => {
+    try {
+      const response = await fetch('/api/notifications/read-all', {
+        method: 'PUT',
+      })
+      
+      if (response.ok) {
+        setNotifications(prev => 
+          prev.map(notification => ({ ...notification, read: true }))
+        )
+        setUnreadCount(0)
+      }
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error)
     }
   }
 
-  // Get icon based on notification type
-  const getIcon = (type: string) => {
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  // Fetch notifications when dropdown opens
+  useEffect(() => {
+    if (isOpen) {
+      fetchNotifications()
+    }
+  }, [isOpen])
+
+  // Get notification icon color based on type
+  const getNotificationColor = (type: string) => {
     switch (type) {
-      case 'success':
-        return <CheckCircleIcon className="h-5 w-5 text-green-400" aria-hidden="true" />
-      case 'warning':
-        return <ExclamationTriangleIcon className="h-5 w-5 text-yellow-400" aria-hidden="true" />
-      case 'error':
-        return <ExclamationTriangleIcon className="h-5 w-5 text-red-400" aria-hidden="true" />
-      default:
-        return <InformationCircleIcon className="h-5 w-5 text-blue-400" aria-hidden="true" />
+      case 'warning': return 'text-yellow-500'
+      case 'error': return 'text-red-500'
+      case 'success': return 'text-green-500'
+      default: return 'text-blue-500'
     }
   }
 
-  // Get background color based on notification type
-  const getBgColor = (type: string) => {
-    switch (type) {
-      case 'success':
-        return 'bg-green-50 hover:bg-green-100'
-      case 'warning':
-        return 'bg-yellow-50 hover:bg-yellow-100'
-      case 'error':
-        return 'bg-red-50 hover:bg-red-100'
-      default:
-        return 'bg-blue-50 hover:bg-blue-100'
-    }
+  // Get user dashboard path
+  const getDashboardPath = () => {
+    const role = getUserRole()
+    if (!role) return '/'
+    return `/${role}/dashboard`
   }
 
   return (
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-1 text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-full transition-colors duration-200"
-        title="Notifications"
-        aria-label={`Notifications (${unreadCount} unread)`}
-        aria-expanded={isOpen}
-        aria-haspopup="menu"
+        className="relative p-1.5 rounded-full text-gray-700 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+        aria-label="Notifications"
       >
-        <BellIcon className="h-6 w-6" aria-hidden="true" />
+        <BellIcon className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
         {unreadCount > 0 && (
-          <span 
-            className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full animate-pulse"
-            aria-label={`${unreadCount} unread notifications`}
-          >
-            {unreadCount}
+          <span className="absolute -top-1 -right-1 sm:-top-1 sm:-right-1 flex h-4 w-4 sm:h-5 sm:w-5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-4 w-4 sm:h-5 sm:w-5 bg-red-500 text-[0.5rem] sm:text-xs text-white items-center justify-center">
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
           </span>
         )}
       </button>
 
-      <Transition
-        show={isOpen}
-        enter="transition ease-out duration-300"
-        enterFrom="transform opacity-0 scale-90"
-        enterTo="transform opacity-100 scale-100"
-        leave="transition ease-in duration-200"
-        leaveFrom="transform opacity-100 scale-100"
-        leaveTo="transform opacity-0 scale-90"
-      >
-        <div className="absolute right-0 mt-2 w-80 md:w-96 origin-top-right rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50"
-             role="menu"
-             aria-label="Notifications dropdown">
-          <div className="p-4 border-b border-gray-200">
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-medium text-gray-900">Notifications</h3>
-              <button
-                onClick={() => {
-                  setIsOpen(false)
-                  newlyOpenedRef.current = false
-                  // Clear any existing timeout
-                  if (autoCloseTimeoutRef.current) {
-                    clearTimeout(autoCloseTimeoutRef.current)
-                  }
-                }}
-                className="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-full"
-                aria-label="Close notifications"
-              >
-                <XMarkIcon className="h-5 w-5" aria-hidden="true" />
-              </button>
+      {isOpen && (
+        <div className="origin-top-right absolute right-0 mt-2 w-72 sm:w-80 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+          <div className="p-3 sm:p-4 border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm sm:text-base font-medium text-gray-900">Notifications</h3>
+              {unreadCount > 0 && (
+                <button
+                  onClick={markAllAsRead}
+                  className="text-xs sm:text-sm text-indigo-600 hover:text-indigo-900 font-medium"
+                >
+                  Mark all as read
+                </button>
+              )}
             </div>
           </div>
           
-          <div className="max-h-96 overflow-y-auto">
+          <div className="max-h-64 sm:max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="p-6 text-center">
-                <BellIcon className="mx-auto h-12 w-12 text-gray-400" aria-hidden="true" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No notifications</h3>
-                <p className="mt-1 text-sm text-gray-500">You&apos;re all caught up!</p>
+              <div className="px-4 sm:px-6 py-8 sm:py-10 text-center">
+                <BellIcon className="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-gray-400" />
+                <p className="mt-2 text-xs sm:text-sm text-gray-500">No notifications</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-200">
-                {notifications.map((notification) => (
+                {notifications.slice(0, 5).map((notification) => (
                   <div 
-                    key={notification._id}
-                    className={`p-4 ${getBgColor(notification.type)} ${!notification.isRead ? 'border-l-4 border-blue-500' : ''} transition-all duration-200 ease-in-out`}
-                    role="menuitem"
+                    key={notification._id} 
+                    className={`p-3 sm:p-4 hover:bg-gray-50 cursor-pointer ${!notification.read ? 'bg-blue-50' : ''}`}
+                    onClick={() => markAsRead(notification._id)}
                   >
-                    <div className="flex">
-                      <div className="flex-shrink-0">
-                        {getIcon(notification.type)}
+                    <div className="flex items-start">
+                      <div className={`flex-shrink-0 ${getNotificationColor(notification.type)}`}>
+                        <BellIcon className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden="true" />
                       </div>
-                      <div className="ml-3 flex-1">
-                        <p className="text-sm font-medium text-gray-900">{notification.title}</p>
-                        <p className="mt-1 text-sm text-gray-500">{notification.message}</p>
-                        <p className="mt-1 text-xs text-gray-400">
+                      <div className="ml-3 sm:ml-4 flex-1 min-w-0">
+                        <p className={`text-xs sm:text-sm font-medium ${notification.read ? 'text-gray-900' : 'text-gray-900 font-semibold'}`}>
+                          {notification.title}
+                        </p>
+                        <p className="mt-1 text-[0.65rem] sm:text-xs text-gray-500 line-clamp-2">
+                          {notification.message}
+                        </p>
+                        <p className="mt-1 text-[0.55rem] sm:text-[0.6rem] text-gray-400">
                           {new Date(notification.createdAt).toLocaleDateString()}
                         </p>
                       </div>
-                      {!notification.isRead && (
-                        <button
-                          onClick={() => markAsRead(notification._id)}
-                          className="flex-shrink-0 ml-2 text-xs text-blue-600 hover:text-blue-800 focus:outline-none focus:underline"
-                          aria-label={`Mark "${notification.title}" as read`}
-                        >
-                          Mark as read
-                        </button>
+                      {!notification.read && (
+                        <div className="flex-shrink-0 ml-2 sm:ml-3 flex items-center">
+                          <span className="inline-flex items-center justify-center h-2.5 w-2.5 rounded-full bg-blue-500"></span>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -282,25 +200,17 @@ export default function NotificationDropdown() {
             )}
           </div>
           
-          <div className="p-4 border-t border-gray-200 bg-gray-50 rounded-b-lg">
-            <button
-              onClick={() => {
-                setIsOpen(false)
-                newlyOpenedRef.current = false
-                // Clear any existing timeout
-                if (autoCloseTimeoutRef.current) {
-                  clearTimeout(autoCloseTimeoutRef.current)
-                }
-                router.push(getUserNotificationsPath())
-              }}
-              className="w-full text-center text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:underline"
-              aria-label="View all notifications"
+          <div className="p-3 sm:p-4 border-t border-gray-200">
+            <Link 
+              href={`${getDashboardPath()}/notifications`}
+              className="block text-center text-xs sm:text-sm text-indigo-600 hover:text-indigo-900 font-medium py-1"
+              onClick={() => setIsOpen(false)}
             >
               View all notifications
-            </button>
+            </Link>
           </div>
         </div>
-      </Transition>
+      )}
     </div>
   )
 }

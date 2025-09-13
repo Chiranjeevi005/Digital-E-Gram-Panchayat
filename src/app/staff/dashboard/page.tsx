@@ -243,10 +243,10 @@ export default function StaffDashboard() {
         </div>
         
         <main className="flex-1 overflow-y-auto">
-          <div className="md:hidden mb-4 px-4 pt-4">
+          <div className="md:hidden mb-3 px-3 pt-3">
             <button
               type="button"
-              className="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+              className="-ml-0.5 -mt-0.5 h-10 w-10 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
               onClick={() => setSidebarOpen(true)}
             >
               <span className="sr-only">Open sidebar</span>
@@ -255,59 +255,59 @@ export default function StaffDashboard() {
           </div>
           
           <div className="bg-white shadow">
-            <div className="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8">
-              <h1 className="text-2xl sm:text-3xl font-heading font-bold text-gray-900">Staff Dashboard</h1>
-              <p className="mt-1 sm:mt-2 text-gray-600 text-sm sm:text-base">Welcome, {session?.user?.name}</p>
+            <div className="max-w-7xl mx-auto py-3 sm:py-4 px-3 sm:px-4">
+              <h1 className="text-xl sm:text-2xl font-heading font-bold text-gray-900">Staff Dashboard</h1>
+              <p className="mt-1 text-gray-600 text-xs sm:text-sm">Welcome, {session?.user?.name}</p>
             </div>
           </div>
 
-          <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-            <div className="px-4 py-6 sm:px-0">
-              {/* Stats Overview */}
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          <div className="max-w-7xl mx-auto py-4 sm:px-4">
+            <div className="px-2 sm:px-0">
+              {/* Stats Overview - Responsive grid for mobile */}
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
                 <StatCard 
-                  title="Total Applications" 
+                  title="Total" 
                   value={stats.total} 
-                  icon={<DocumentTextIcon className="h-5 w-5 sm:h-6 sm:w-6" />} 
+                  icon={<DocumentTextIcon className="h-4 w-4 sm:h-5 sm:w-5" />} 
                   color="blue" 
                 />
                 <StatCard 
                   title="Pending" 
                   value={stats.pending} 
-                  icon={<ClockIcon className="h-5 w-5 sm:h-6 sm:w-6" />} 
+                  icon={<ClockIcon className="h-4 w-4 sm:h-5 sm:w-5" />} 
                   color="yellow" 
                 />
                 <StatCard 
                   title="In Progress" 
                   value={stats.inProgress} 
-                  icon={<UserGroupIcon className="h-5 w-5 sm:h-6 sm:w-6" />} 
+                  icon={<UserGroupIcon className="h-4 w-4 sm:h-5 sm:w-5" />} 
                   color="purple" 
                 />
                 <StatCard 
                   title="Completed" 
                   value={stats.completed} 
-                  icon={<CheckCircleIcon className="h-5 w-5 sm:h-6 sm:w-6" />} 
+                  icon={<CheckCircleIcon className="h-4 w-4 sm:h-5 sm:w-5" />} 
                   color="green" 
                 />
               </div>
               
-              {/* Applications Queue */}
-              <Card>
-                <div className="mb-6">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-                    <h2 className="text-2xl font-heading font-bold text-gray-900">Applications Queue</h2>
+              {/* Applications Queue - Full width on mobile */}
+              <Card className="w-full">
+                <div className="mb-4">
+                  <div className="flex flex-col gap-3 mb-4">
+                    <h2 className="text-lg sm:text-xl font-heading font-bold text-gray-900">Applications Queue</h2>
                     
-                    <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <SearchBar 
                         onSearch={handleSearch} 
                         placeholder="Search applications..." 
-                        className="w-full sm:w-64"
+                        className="w-full"
                       />
                       
                       <select 
                         value={statusFilter}
                         onChange={(e) => handleStatusFilter(e.target.value)}
-                        className="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        className="block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs sm:text-sm text-gray-900 placeholder-gray-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                       >
                         {statusOptions.map(option => (
                           <option key={option} value={option} className="bg-white">
@@ -321,14 +321,14 @@ export default function StaffDashboard() {
                   {loading ? (
                     <SkeletonLoader type="table" />
                   ) : filteredApplications.length === 0 ? (
-                    <div className="text-center py-12">
-                      <div className="mx-auto bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="text-center py-8 sm:py-12">
+                      <div className="mx-auto bg-gray-100 rounded-full w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                       </div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">No applications found</h3>
-                      <p className="text-gray-500">
+                      <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">No applications found</h3>
+                      <p className="text-gray-500 text-xs sm:text-sm">
                         {searchQuery || statusFilter !== 'all' 
                           ? 'Try adjusting your search or filter criteria' 
                           : 'No applications assigned to you'}
@@ -340,75 +340,79 @@ export default function StaffDashboard() {
                             setStatusFilter('all')
                             setFilteredApplications(applications)
                           }}
-                          className="mt-4 bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                          className="mt-3 bg-white text-gray-700 border border-gray-300 px-3 py-1.5 sm:px-4 sm:py-2 rounded-md text-xs sm:text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                         >
                           Clear filters
                         </button>
                       )}
                     </div>
                   ) : (
-                    <Table>
-                      <Table.Head>
-                        <Table.HeadCell>Service</Table.HeadCell>
-                        <Table.HeadCell>Applicant</Table.HeadCell>
-                        <Table.HeadCell>Status</Table.HeadCell>
-                        <Table.HeadCell>Submitted</Table.HeadCell>
-                        <Table.HeadCell className="text-right">Actions</Table.HeadCell>
-                      </Table.Head>
-                      <Table.Body>
-                        {filteredApplications.map((application) => (
-                          <Table.Row key={application._id}>
-                            <Table.Cell>
-                              <div className="text-sm font-medium text-gray-900">{application.service?.name}</div>
-                            </Table.Cell>
-                            <Table.Cell>
-                              <div className="text-sm text-gray-900">{application.applicant?.name}</div>
-                              <div className="text-sm text-gray-500">{application.applicant?.email}</div>
-                            </Table.Cell>
-                            <Table.Cell>
-                              <Badge variant={application.status}>
-                                {application.status}
-                              </Badge>
-                            </Table.Cell>
-                            <Table.Cell className="text-sm text-gray-500">
-                              {new Date(application.submittedAt).toLocaleDateString()}
-                            </Table.Cell>
-                            <Table.Cell className="text-right text-sm font-medium">
-                              <button
-                                onClick={() => router.push(`/staff/applications/${application._id}`)}
-                                className="text-indigo-600 hover:text-indigo-900 mr-3"
-                              >
-                                View
-                              </button>
-                              {application.status === 'pending' && (
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th scope="col" className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
+                            <th scope="col" className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applicant</th>
+                            <th scope="col" className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th scope="col" className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th>
+                            <th scope="col" className="px-2 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {filteredApplications.map((application) => (
+                            <tr key={application._id}>
+                              <td className="px-2 py-2 whitespace-nowrap">
+                                <div className="text-xs sm:text-sm font-medium text-gray-900 truncate max-w-[80px] sm:max-w-xs">{application.service?.name}</div>
+                              </td>
+                              <td className="px-2 py-2">
+                                <div className="text-xs text-gray-900 truncate max-w-[80px]">{application.applicant?.name}</div>
+                                <div className="text-xs text-gray-500 truncate max-w-[80px]">{application.applicant?.email}</div>
+                              </td>
+                              <td className="px-2 py-2 whitespace-nowrap">
+                                <Badge variant={application.status}>
+                                  {application.status}
+                                </Badge>
+                              </td>
+                              <td className="px-2 py-2 whitespace-nowrap text-xs text-gray-500">
+                                {new Date(application.submittedAt).toLocaleDateString()}
+                              </td>
+                              <td className="px-2 py-2 whitespace-nowrap text-right text-xs font-medium">
                                 <button
-                                  onClick={() => updateApplicationStatus(application._id, 'in-progress')}
-                                  className="text-yellow-600 hover:text-yellow-900 mr-3"
+                                  onClick={() => router.push(`/staff/applications/${application._id}`)}
+                                  className="text-indigo-600 hover:text-indigo-900 mr-2"
                                 >
-                                  Start
+                                  View
                                 </button>
-                              )}
-                              {application.status === 'in-progress' && (
-                                <>
+                                {application.status === 'pending' && (
                                   <button
-                                    onClick={() => updateApplicationStatus(application._id, 'approved')}
-                                    className="text-green-600 hover:text-green-900 mr-3"
+                                    onClick={() => updateApplicationStatus(application._id, 'in-progress')}
+                                    className="text-yellow-600 hover:text-yellow-900 mr-2"
                                   >
-                                    Approve
+                                    Start
                                   </button>
-                                  <button
-                                    onClick={() => updateApplicationStatus(application._id, 'rejected')}
-                                    className="text-red-600 hover:text-red-900"
-                                  >
-                                    Reject
-                                  </button>
-                                </>
-                              )}
-                            </Table.Cell>
-                          </Table.Row>
-                        ))}
-                      </Table.Body>
-                    </Table>
+                                )}
+                                {application.status === 'in-progress' && (
+                                  <>
+                                    <button
+                                      onClick={() => updateApplicationStatus(application._id, 'approved')}
+                                      className="text-green-600 hover:text-green-900 mr-2"
+                                    >
+                                      Approve
+                                    </button>
+                                    <button
+                                      onClick={() => updateApplicationStatus(application._id, 'rejected')}
+                                      className="text-red-600 hover:text-red-900"
+                                    >
+                                      Reject
+                                    </button>
+                                  </>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   )}
                 </div>
               </Card>

@@ -127,7 +127,7 @@ export default function OfficerNotifications() {
           <div className="hidden md:block w-64">
             <SkeletonLoader type="card" className="h-full" />
           </div>
-          <div className="flex-1 p-6">
+          <div className="flex-1 p-4 sm:p-6">
             <SkeletonLoader type="card" className="h-full" />
           </div>
         </div>
@@ -168,11 +168,11 @@ export default function OfficerNotifications() {
           <Sidebar role="Officer" />
         </div>
         
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-4 sm:p-6">
           <div className="md:hidden mb-4">
             <button
               type="button"
-              className="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+              className="-ml-0.5 -mt-0.5 h-10 w-10 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
               onClick={() => setSidebarOpen(true)}
             >
               <span className="sr-only">Open sidebar</span>
@@ -180,25 +180,25 @@ export default function OfficerNotifications() {
             </button>
           </div>
           
-          <div className="mb-6">
-            <h1 className="text-3xl font-heading font-bold text-gray-900">Officer Notifications</h1>
-            <p className="text-gray-600 mt-2">
+          <div className="mb-5 sm:mb-6">
+            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-gray-900">Officer Notifications</h1>
+            <p className="text-gray-600 mt-1 text-sm sm:text-base">
               {unreadCount > 0 
                 ? `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}` 
                 : 'All notifications are read'}
             </p>
           </div>
           
-          <Card>
-            <div className="mb-6">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <h2 className="text-xl font-heading font-semibold text-gray-900">Your Notifications</h2>
+          <Card className="w-full">
+            <div className="mb-5 sm:mb-6">
+              <div className="flex flex-col gap-3 sm:gap-4">
+                <h2 className="text-lg sm:text-xl font-heading font-semibold text-gray-900">Your Notifications</h2>
                 
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <div className="flex space-x-2">
+                  <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     <button
                       onClick={() => setFilter('all')}
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium ${
                         filter === 'all'
                           ? 'bg-indigo-100 text-indigo-800'
                           : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
@@ -208,7 +208,7 @@ export default function OfficerNotifications() {
                     </button>
                     <button
                       onClick={() => setFilter('unread')}
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium ${
                         filter === 'unread'
                           ? 'bg-indigo-100 text-indigo-800'
                           : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
@@ -218,7 +218,7 @@ export default function OfficerNotifications() {
                     </button>
                     <button
                       onClick={() => setFilter('read')}
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      className={`px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium ${
                         filter === 'read'
                           ? 'bg-indigo-100 text-indigo-800'
                           : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
@@ -231,7 +231,7 @@ export default function OfficerNotifications() {
                   {unreadCount > 0 && (
                     <button
                       onClick={markAllAsRead}
-                      className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-1 rounded-full text-sm font-medium hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                      className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 whitespace-nowrap"
                     >
                       Mark All as Read
                     </button>
@@ -243,51 +243,51 @@ export default function OfficerNotifications() {
             {loading ? (
               <SkeletonLoader type="card" count={3} />
             ) : filteredNotifications.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="mx-auto bg-gray-100 rounded-full w-16 h-16 flex items-center justify-center mb-4">
-                  <InformationCircleIcon className="h-8 w-8 text-gray-400" />
+              <div className="text-center py-8 sm:py-12">
+                <div className="mx-auto bg-gray-100 rounded-full w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center mb-3 sm:mb-4">
+                  <InformationCircleIcon className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-2">
                   {filter === 'unread' 
                     ? 'No unread notifications' 
                     : filter === 'read' 
                       ? 'No read notifications' 
                       : 'No notifications'}
                 </h3>
-                <p className="text-gray-500">
+                <p className="text-gray-500 text-xs sm:text-sm">
                   {filter === 'all' 
                     ? 'You don\'t have any notifications yet.' 
                     : `You don't have any ${filter} notifications.`}
                 </p>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {filteredNotifications.map((notification) => (
                   <div 
                     key={notification._id} 
-                    className={`rounded-lg border p-4 shadow-sm ${
+                    className={`rounded-lg border p-3 sm:p-4 shadow-sm ${
                       notification.isRead 
                         ? 'bg-white border-gray-200' 
                         : 'bg-blue-50 border-blue-200'
                     }`}
                   >
                     <div className="flex">
-                      <div className="flex-shrink-0">
+                      <div className="flex-shrink-0 mt-0.5">
                         {notification.type === 'success' && (
-                          <CheckCircleIcon className="h-5 w-5 text-green-400" />
+                          <CheckCircleIcon className="h-4 w-4 sm:h-5 sm:w-5 text-green-400" />
                         )}
                         {notification.type === 'warning' && (
-                          <ExclamationTriangleIcon className="h-5 w-5 text-yellow-400" />
+                          <ExclamationTriangleIcon className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-400" />
                         )}
                         {notification.type === 'error' && (
-                          <ExclamationTriangleIcon className="h-5 w-5 text-red-400" />
+                          <ExclamationTriangleIcon className="h-4 w-4 sm:h-5 sm:w-5 text-red-400" />
                         )}
                         {notification.type === 'info' && (
-                          <InformationCircleIcon className="h-5 w-5 text-blue-400" />
+                          <InformationCircleIcon className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400" />
                         )}
                       </div>
-                      <div className="ml-3 flex-1">
-                        <div className="flex items-center justify-between">
+                      <div className="ml-3 sm:ml-4 flex-1 min-w-0">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                           <h3 className={`text-sm font-medium ${
                             notification.isRead ? 'text-gray-900' : 'text-gray-900 font-semibold'
                           }`}>
@@ -296,24 +296,30 @@ export default function OfficerNotifications() {
                           <div className="flex space-x-2">
                             {!notification.isRead && (
                               <button
-                                onClick={() => markAsRead(notification._id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  markAsRead(notification._id);
+                                }}
                                 className="text-xs text-indigo-600 hover:text-indigo-900"
                               >
                                 Mark as read
                               </button>
                             )}
                             <button
-                              onClick={() => deleteNotification(notification._id)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteNotification(notification._id);
+                              }}
                               className="text-xs text-red-600 hover:text-red-900"
                             >
                               Delete
                             </button>
                           </div>
                         </div>
-                        <div className="mt-1 text-sm text-gray-600">
+                        <div className="mt-2 text-xs sm:text-sm text-gray-600">
                           <p>{notification.message}</p>
                         </div>
-                        <div className="mt-2 text-xs text-gray-500">
+                        <div className="mt-2 text-[0.65rem] sm:text-xs text-gray-500">
                           {new Date(notification.createdAt).toLocaleString()}
                         </div>
                       </div>

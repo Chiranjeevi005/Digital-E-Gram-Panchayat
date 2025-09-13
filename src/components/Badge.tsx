@@ -3,11 +3,18 @@ import React from 'react'
 interface BadgeProps {
   children: React.ReactNode
   variant?: 'pending' | 'in-progress' | 'approved' | 'rejected' | 'default' | 'completed' | 'processing'
+  size?: 'xs' | 'sm' | 'md'
   className?: string
 }
 
-export default function Badge({ children, variant = 'default', className = '' }: BadgeProps) {
-  const baseClasses = 'inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors duration-300'
+export default function Badge({ children, variant = 'default', size = 'md', className = '' }: BadgeProps) {
+  const baseClasses = 'inline-flex items-center rounded-full font-medium transition-colors duration-300'
+  
+  const sizeClasses = {
+    xs: 'px-1.5 py-0.5 text-[0.6rem]',
+    sm: 'px-2 py-0.5 text-[0.65rem]',
+    md: 'px-2.5 py-1 text-xs'
+  }
   
   const variantClasses = {
     'pending': 'bg-blue-100 text-blue-800',
@@ -20,7 +27,7 @@ export default function Badge({ children, variant = 'default', className = '' }:
   }
 
   return (
-    <span className={`${baseClasses} ${variantClasses[variant]} ${className}`}>
+    <span className={`${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}>
       {children}
     </span>
   )

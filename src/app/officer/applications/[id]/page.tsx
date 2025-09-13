@@ -269,12 +269,12 @@ export default function OfficerApplicationDetail({ params }: PageProps) {
                     <Form.Select
                       value={assignedTo}
                       onChange={(e) => setAssignedTo(e.target.value)}
-                    >
-                      <option value="">Select staff member</option>
-                      {/* In a real app, this would be populated with staff members */}
-                      <option value="staff1">Staff Member 1</option>
-                      <option value="staff2">Staff Member 2</option>
-                    </Form.Select>
+                      options={[
+                        { value: "", label: "Select staff member" },
+                        { value: "staff1", label: "Staff Member 1" },
+                        { value: "staff2", label: "Staff Member 2" }
+                      ]}
+                    />
                   </Form.Field>
                   
                   <div className="flex flex-wrap gap-2 mt-6">

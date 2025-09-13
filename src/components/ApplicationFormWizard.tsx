@@ -746,6 +746,11 @@ export default function ApplicationFormWizard({
     if (validateStep(currentStep)) {
       // Instead of calling onSubmit directly, we'll handle the submission here
       try {
+        console.log('Submitting application data:', {
+          service: service._id,
+          formData
+        });
+        
         const response = await fetch('/api/applications', {
           method: 'POST',
           headers: {
@@ -759,6 +764,12 @@ export default function ApplicationFormWizard({
         
         console.log('API Response Status:', response.status);
         console.log('API Response Status Text:', response.statusText);
+        // Fixed the headers logging to avoid TypeScript error
+        const headersObj: Record<string, string> = {};
+        response.headers.forEach((value, key) => {
+          headersObj[key] = value;
+        });
+        console.log('API Response Headers:', headersObj);
         
         if (response.ok) {
           const application = await response.json()
@@ -773,20 +784,32 @@ export default function ApplicationFormWizard({
           // Handle error with more detailed information
           let errorData;
           try {
-            errorData = await response.json()
+            const textResponse = await response.text();
+            console.log('Raw error response:', textResponse);
+          
+            // Try to parse as JSON, but handle if it's not valid JSON
+            try {
+              errorData = JSON.parse(textResponse);
+            } catch (parseError) {
+              // If JSON parsing fails, create an error object with the text
+              errorData = {
+                message: textResponse || response.statusText || 'Unknown error occurred',
+                status: response.status
+              }
+            }
           } catch (parseError) {
-            // If JSON parsing fails, use the status text
+            // If getting text fails, use the status text
             errorData = {
               message: response.statusText || 'Unknown error occurred',
               status: response.status
             }
           }
-          
+        
           // Show error notification to user
           const errorMessage = errorData.error || errorData.message || 'Application submission failed'
           const { showNotification } = await import('@/lib/documentGenerator')
           showNotification(`Submission Error: ${errorMessage}`)
-          
+        
           // Log detailed error information
           console.error('Submission error:', {
             status: response.status,
@@ -799,7 +822,7 @@ export default function ApplicationFormWizard({
         const errorMessage = error instanceof Error ? error.message : 'Network error or unknown issue'
         const { showNotification } = await import('@/lib/documentGenerator')
         showNotification(`Submission Error: ${errorMessage}`)
-        
+      
         console.error('Submission error:', {
           name: error instanceof Error ? error.name : 'Unknown error',
           message: errorMessage,
@@ -822,7 +845,7 @@ export default function ApplicationFormWizard({
           <Form.Select
             value={value as string || ''}
             onChange={(e) => handleInputChange(field.name, e.target.value)}
-            options={field.options}
+            options={field.options || []}
             error={error}
             success={success}
             required={field.required}
@@ -993,7 +1016,15 @@ export default function ApplicationFormWizard({
               Back
             </Button>
             <Button
-              onClick={currentStep === totalSteps - 1 ? handleSubmit : handleNext}
+              onClick={() => {
+                if (currentStep === totalSteps - 1) {
+                  // Create a mock form event for handleSubmit
+                  const mockEvent = { preventDefault: () => {} } as React.FormEvent;
+                  handleSubmit(mockEvent);
+                } else {
+                  handleNext();
+                }
+              }}
               disabled={submitting}
               className="px-4 py-2 text-sm"
             >
