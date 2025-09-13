@@ -5,8 +5,9 @@ import type { NextRequest } from 'next/server'
 // Define CORS allowlist - in production, replace with your actual frontend domain
 const CORS_ALLOWLIST = [
   'http://localhost:3000',
-  'https://your-production-domain.vercel.app',
-  'https://your-api-domain.onrender.com'
+  'https://your-vercel-app.vercel.app',
+  'https://your-api-domain.onrender.com',
+  'https://digital-e-gram-panchayat-ao60.onrender.com'
 ]
 
 // Define CSP policy for production (includes upgrade-insecure-requests)

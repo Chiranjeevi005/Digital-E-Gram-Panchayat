@@ -71,7 +71,7 @@ All dependencies are listed in [package.json](package.json)
    ```
    MONGODB_URI="your-mongodb-connection-string"
    NEXTAUTH_SECRET="your-random-secret"
-   NEXTAUTH_URL="http://localhost:3000"
+   NEXTAUTH_URL="https://digital-e-gram-panchayat-ao60.onrender.com"
    ```
 
 4. **Setup Tailwind**
@@ -84,7 +84,7 @@ All dependencies are listed in [package.json](package.json)
    npm run dev
    ```
 
-Visit 👉 http://localhost:3000
+Visit 👉 https://digital-e-gram-panchayat-ao60.onrender.com
 
 ## 🚀 Deployment
 

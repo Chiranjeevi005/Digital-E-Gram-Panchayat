@@ -13,6 +13,6 @@
     }
   ],
   "env": {
-    "NEXT_PUBLIC_BASE_URL": "https://your-app-name.vercel.app"
+    "NEXT_PUBLIC_BASE_URL": "https://digital-e-gram-panchayat-ao60.onrender.com"
   }
 }

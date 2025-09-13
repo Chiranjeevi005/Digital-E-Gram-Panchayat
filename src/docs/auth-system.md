@@ -35,7 +35,7 @@ The following environment variables are required:
 
 ```
 NEXTAUTH_SECRET=your-secret-key
-NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_URL=https://digital-e-gram-panchayat-ao60.onrender.com
 ```
 
 ## Testing
@@ -43,7 +43,7 @@ NEXTAUTH_URL=http://localhost:3000
 To test the authentication system:
 
 1. Start the development server: `npm run dev`
-2. Visit http://localhost:3000/auth/signin
+2. Visit https://digital-e-gram-panchayat-ao60.onrender.com/auth/signin
 3. Test credentials authentication with:
    - Email: test@example.com
    - Password: TestPass123!
